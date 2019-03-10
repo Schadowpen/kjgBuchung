@@ -9,12 +9,3 @@ tbody:before {
     line-height: 1px;
     color: transparent;
 }
-
-/* Designaenderung Twenty Fourteen */
-.site-content .entry-header,
-.site-content .entry-content,
-.site-content .entry-summary,
-.site-content .entry-meta,
-.page-content {
-    max-width: 100%;
-}

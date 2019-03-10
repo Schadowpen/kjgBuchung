@@ -32,12 +32,3 @@ table td.shrink {
 table td.expand {
     width: 25%;
 }
-
-/* Designaenderung Twenty Fourteen */
-.site-content .entry-header,
-.site-content .entry-content,
-.site-content .entry-summary,
-.site-content .entry-meta,
-.page-content {
-    max-width: 100%;
-}
