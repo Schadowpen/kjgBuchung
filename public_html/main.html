@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Startseite</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/canvas.js"></script>
+        <script src="js/mainPageUI.js"></script>
+        <script src="js/userElementsPlacer.js"></script>
+        
+        <style type="text/css">
+            p.error {
+                font-family: arial, sans-serif;
+                line-height: 150%;
+                margin-left: 2em;
+                padding: 1em;
+                border: 3px solid red;
+                background-color: #f89;
+                display: inline-block;
+            }
+            div.uebersicht {
+                margin: 2px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                border: 1px solid gray;
+                border-radius: 10px;
+                min-width: 400px;
+                background-color: white;
+            }
+            div.uebersicht th,
+            div.uebersicht td {
+                -webkit-hyphens: none;
+                -moz-hyphens: none;
+                hyphens: none;
+            }
+
+            /* Designaenderung Twenty Fourteen */
+            .site-content .entry-header,
+            .site-content .entry-content,
+            .site-content .entry-summary,
+            .site-content .entry-meta,
+            .page-content {
+                max-width: 100%;
+            }
+        </style>
+        
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+        </header>
+
+        <div style="font-size: 150%;">
+            Datum: <select style="font-size: 100%;" id="date" onchange="onDateChanged()" >
+                <!-- options are added via Javascript -->
+            </select>
+        </div>
+        <br/>
+        <canvas id="canvas" style="width: 1000px; height: 700px; background-color: beige" > </canvas>
+
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+
+        <div id="userElements" >
+            <div class="uebersicht" >
+                <h3>Platz &Uuml;bersicht</h3>
+                <table>
+                    <tr>
+                        <td>Block:</td>
+                        <td id="platzBlock"></td>
+                    </tr>
+                    <tr>
+                        <td>Reihe:</td>
+                        <td id="platzReihe"></td>
+                    </tr>
+                    <tr>
+                        <td>Platz:</td>
+                        <td id="platzPlatz"></td>
+                    </tr>
+                    <tr>
+                        <td>Status:</td>
+                        <td><span id="platzStatus"></span>  <input type="button" id="platzButton" value="Platz als gesperrt markieren" disabled onclick="onSperrenClick()" style="margin-left: 20px;" /></td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div class="uebersicht" >
+                <h3>Vorgang &Uuml;bersicht</h3>
+                <p id="keinVorgang" style="display: block">
+                    kein zugeh&ouml;riger Vorgang <br/>
+                    <input type="button" value="neuen Vorgang erstellen" id="vorgangErstellenButton1" onclick="location.href = urlFuerNeuenVorgang();" /> <input type="button" value="in neuem Tab erstellen" id="vorgangErstellenButton2" onclick="window.open(urlFuerNeuenVorgang());" />
+                </p>
+
+                <p id="vorgangLoading" style="display: none">Loading ...</p>
+
+                <div  id="vorgang" style="display: none">
+                    <table>
+                        <tr>
+                            <td>Nummer:</td>
+                            <td id="vorgangNr"></td>
+                        </tr>
+                        <tr>
+                            <td>Vorname:</td>
+                            <td id="vorgangVorname"></td>
+                        </tr>
+                        <tr>
+                            <td>Nachname:</td>
+                            <td id="vorgangNachname"></td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td><a href="" id="vorgangEmail"></a></td>
+                        </tr>
+                        <tr>
+                            <td>Telefon:</td>
+                            <td id="vorgangTel"></td>
+                        </tr>
+                        <tr>
+                            <td>Gesamtpreis:</td>
+                            <td id="vorgangGesPreis"></td>
+                        </tr>
+                        <tr>
+                            <td>Bezahlart:</td>
+                            <td id="vorgangBezahlart"></td>
+                        </tr>
+                        <tr>
+                            <td>Bezahlt:</td>
+                            <td id="vorgangBezahlung"></td>
+                        </tr>
+                        <tr>
+                            <td>Versandart:</td>
+                            <td id="vorgangVersand"></td>
+                        </tr>
+                        <tr>
+                            <td>Anschrift:</td>
+                            <td id="vorgangAnschrift"></td>
+                        </tr>
+                        <tr>
+                            <td>Kommentar:</td>
+                            <td id="vorgangKommentar"></td>
+                        </tr>
+                    </table>
+                    <input type="button" value="Vorgang bearbeiten" onclick="location.href = urlFuerDiesenVorgang();" /> <input type="button" value="in neuem Tab bearbeiten" onclick="window.open(urlFuerDiesenVorgang());" />
+                </div>
+            </div>
+        </div>
+
+        <h1>Buchungssystem für: <span id="veranstaltungsName">Loading...</span></h1>
+
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+
+    </body>
+</html>

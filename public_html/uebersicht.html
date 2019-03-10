@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - &Uuml;bersicht</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/uebersichtPage.js"></script>
+        <style>
+            td, th {
+                border: 1px solid;
+                padding: 0.5rem;
+                text-align: center;
+            }
+            tbody:before {
+                content: "-";
+                display: block;
+                line-height: 1px;
+                color: transparent;
+            }
+
+            /* Designaenderung Twenty Fourteen */
+            .site-content .entry-header,
+            .site-content .entry-content,
+            .site-content .entry-summary,
+            .site-content .entry-meta,
+            .page-content {
+                max-width: 100%;
+            }
+        </style>
+        
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+        </header>
+
+        <h1>&Uuml;bersicht f&uuml;r: <span id="veranstaltung"></span></h1>
+        <table style="width: 100%; border: 1px solid; border-spacing: 2px">
+            <thead>
+                <tr>
+                    <th>Vorstellung</th>
+                    <th>Anzahl Pl&auml;tze</th>
+                    <th>davon frei</th>
+                    <th>davon reserviert</th>
+                    <th>davon gebucht</th>
+                    <th>davon VIP</th>
+                    <th>davon Triple A</th>
+                    <th>gesamte Einnahmen</th>
+                    <th>bereits gezahlte Einnahmen</th>
+                </tr>
+            </thead>
+
+            <tbody id="gesamt"></tbody>
+
+            <tbody id="einzel"></tbody>
+        </table>
+
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

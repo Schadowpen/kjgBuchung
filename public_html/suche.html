@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Suche</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/suchePage.js" ></script>
+        <style>
+            div.vorgang {
+                margin: 2px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                border: 1px solid gray;
+                border-radius: 10px;
+            }
+            div.vorgang:hover {
+                border: 2px solid black;
+                padding-left: 9px;
+                padding-right: 9px;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            table {
+                width: 100%;
+            }
+            table tr {
+                margin: 2px;
+            }
+            div.vorgang table td, div.vorgang table td * {
+                vertical-align: top;
+                text-align: left;
+                padding-bottom: 5px;
+            }
+            table td.shrink {
+                white-space: nowrap;
+            }
+            table td.expand {
+                width: 25%;
+            }
+
+            /* Designaenderung Twenty Fourteen */
+            .site-content .entry-header,
+            .site-content .entry-content,
+            .site-content .entry-summary,
+            .site-content .entry-meta,
+            .page-content {
+                max-width: 100%;
+            }
+        </style>
+        
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+        </header>
+
+        <h1>Suche nach Vorg&auml;ngen</h1>
+
+        <table>
+            <tr>
+                <td>Nummer: <input type="number" id="vorgangNummer" min="1"/></td>
+                <td>Vorname: <input type="text" id="vorgangVorname"/></td>
+                <td>Nachname: <input type="text" id="vorgangNachname" /></td>
+                <td>Vorstellung: <select id="vorgangVorstellung" > <option>alle</option> </select></td>
+            </tr>
+        </table>
+        <br/>
+
+        <div id="liste">
+            Loading ...
+            <!-- vorgaenge added via Javascript -->
+        </div>
+        Doppelklick zum bearbeiten!
+
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

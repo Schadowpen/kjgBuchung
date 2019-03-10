@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Vorgang</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/canvas.js"></script>
+        <script src="js/vorgangPageUI.js"></script>
+        <script src="js/userElementsPlacer.js"></script>
+        <style type="text/css">
+            p.error {
+                font-family: arial, sans-serif;
+                line-height: 150%;
+                margin-left: 2em;
+                padding: 1em;
+                border: 3px solid red;
+                background-color: #f89;
+                display: inline-block;
+            }
+            div.uebersicht {
+                margin: 2px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                border: 1px solid gray;
+                border-radius: 10px;
+                min-width: 400px;
+                background-color: white;
+            }
+            div.uebersicht th,
+            div.uebersicht td {
+                -webkit-hyphens: none;
+                -moz-hyphens: none;
+                hyphens: none;
+            }
+            table.plaetze {
+                border: 1px solid;
+                width: 100%;
+                border-bottom:0;
+                border-left:0;
+                border-spacing: 0px;
+            }
+            table.plaetze td, table.plaetze th {
+                border: 1px solid;
+                padding: 0.5rem;
+                border-top: 0;
+                border-right: 0;
+            }
+
+            /* Designaenderung Twenty Fourteen */
+            .site-content .entry-header,
+            .site-content .entry-content,
+            .site-content .entry-summary,
+            .site-content .entry-meta,
+            .page-content {
+                max-width: 100%;
+            }
+        </style>
+        
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+        </header>
+
+        <div style="font-size: 150%;">
+            Datum: <select style="font-size: 100%;" id="date" onchange="onDateChanged()" >
+                <!-- options are added via Javascript -->
+            </select>
+        </div>
+        <br/>
+        <canvas id="canvas" style="width: 1000px; height: 700px; background-color: beige" > </canvas>
+
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+
+        <div id="userElements" >
+            <div class="uebersicht" >
+                <h3>Platz &Uuml;bersicht</h3>
+                <table class="plaetze">
+                    <thead>
+                        <tr>
+                            <th>Vorstellung</th>
+                            <th>Block</th>
+                            <th>Reihe</th>
+                            <th>Platz</th>
+                        </tr>
+                    </thead>
+                    <tbody id="platzTable">
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="uebersicht" >
+                <h3>Vorgang &Uuml;bersicht</h3>
+                <table>
+                    <tr>
+                        <td>Nummer:</td>
+                        <td id="vorgangNr"></td>
+                    </tr>
+                    <tr>
+                        <td>Vorname:</td>
+                        <td> <input type="text" id="vorgangVorname"  oninput="onVorgangChanged();" /></td>
+                    </tr>
+                    <tr>
+                        <td>Nachname:</td>
+                        <td> <input type="text" id="vorgangNachname"  oninput="onVorgangChanged();" /></td>
+                    </tr>
+                    <tr>
+                        <td>E-Mail:</td>
+                        <td><input type="email" id="vorgangEmail"  oninput="onVorgangChanged();" /></td>
+                    </tr>
+                    <tr>
+                        <td>Telefon:</td>
+                        <td> <input type="tel" id="vorgangTel"  oninput="onVorgangChanged();" /></td>
+                    </tr>
+                    <tr>
+                        <td>Einzelpreis</td>
+                        <td> 
+                            <span id="vorgangPreisNoVIP"><input type="number" min="0" step="0.01" value="5" id="vorgangPreis" oninput="onVorgangCalculationChanged();" />&euro;</span>
+                            <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Gesamtpreis:</td>
+                        <td id="vorgangGesPreis"></td>
+                    </tr>
+                    <tr>
+                        <td>Bezahlart:</td>
+                        <td> <select id="vorgangBezahlart" onchange="onVorgangCalculationChanged();" >
+                                <option value="Bar">Bar</option>
+                                <option value="Ueberweisung">&Uuml;berweisung</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="Abendkasse">Abendkasse</option>
+                                <option value="VIP">VIP</option>
+                                <option value="TripleA">Triple A</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Bezahlt:</td>
+                        <td> <select id="vorgangBezahlung" onchange="onVorgangCalculationChanged();" >
+                                <option value="offen">offen</option>
+                                <option value="bezahlt">bezahlt</option>
+                                <option value="Abendkasse" disabled>bezahlt an der Abendkasse</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Versandart:</td>
+                        <td> <select id="vorgangVersand" onchange="onVorgangCalculationChanged();" >
+                                <option value="Abholung">Abholung</option>
+                                <option value="E-Mail">E-Mail</option>
+                                <option value="Post">Post</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Anschrift:</td>
+                        <td style="width: 100%;"> <input type="text" id="vorgangAnschrift" style="width: 100%;" onchange="onVorgangChanged();" /></td>
+                    </tr>
+                    <tr>
+                        <td>Kommentar:</td>
+                        <td> <textarea id="vorgangKommentar" style="width: 100%; height: 6em" onchange="onVorgangChanged();"></textarea></td>
+                    </tr>
+                </table>
+                <input type="button" value="Speichern" id="vorgangSpeichern" disabled onclick="onVorgangSave();"/> <input type="button" value="Vorgangsbericht drucken" id="vorgangDrucken" disabled onclick="onVorgangDrucken();" style="float: right;" /><br/>
+                <br/>
+                <input type="button" value="L&ouml;schen" id="vorgangLoeschen" onclick="onVorgangDelete();"/> <input type="button" value="Karten drucken" id="kartenDrucken" disabled onclick="onKartenDrucken();" style="float: right;" /> <br/>
+                <input type="button" value="Karten drucken (mittlere Auflösung)" id="kartenDruckenMediumRes" disabled onclick="onKartenDruckenMediumRes();" style="float: right;" /> <br/>
+                <input type="button" value="Karten drucken (geringe Auflösung)" id="kartenDruckenLowRes" disabled onclick="onKartenDruckenLowRes();" style="float: right;" /> <br/>
+            </div>
+        </div>
+
+
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

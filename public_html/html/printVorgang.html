@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vorgang &Uuml;bersicht</title>
+        <style type="text/css" media="print">
+            @media print { 
+                @page {size: A4; max-height:100%; max-width:100%;}
+                body {width: 100%; height: 100%; padding: 0; margin: 0;} 
+            }
+        </style>
+        <style type="text/css">
+            p.error {
+                font-family: arial, sans-serif;
+                line-height: 150%;
+                margin-left: 2em;
+                padding: 1em;
+                border: 3px solid red;
+                background-color: #f89;
+                display: inline-block;
+            }
+            div.uebersicht {
+                margin: 2px;
+                padding-left: 10px;
+                padding-right: 10px;
+                padding-top: 3px;
+                padding-bottom: 3px;
+                border: 1px solid gray;
+                border-radius: 10px;
+            }
+            table.plaetze {
+                border: 1px solid;
+                width: 100%;
+                border-bottom:0;
+                border-left:0;
+                border-spacing: 0px;
+            }
+            table.plaetze td, table.plaetze th {
+                border: 1px solid;
+                padding: 0.5rem;
+                border-top: 0;
+                border-right: 0;
+            }
+        </style>
+        <script src="http://localhost:8383/kjgBuchung/js/forge-sha256.min.js"></script>
+        <script src="http://localhost:8383/kjgBuchung/js/mainFunctions.js"></script>
+        <script src="http://localhost:8383/kjgBuchung/js/data.js" ></script>
+
+        <script>
+            function druckeVorgang(nummer) {
+                document.getElementById("vorgangNr").innerHTML = nummer;
+                
+                ladeVorgang(nummer, function () {
+                    loadingComplete();
+                });
+            }
+            
+            function loadUI() {
+                objectsToLoad += 1;
+            }
+
+            function initUI() {
+                displayVorgangInformation();
+                displaySeatsInformation();
+
+                window.focus();
+                window.print();
+                window.close();
+            }
+
+            function displaySeatsInformation() {
+                var oldDateString = "";
+
+                var table = document.getElementById("platzTable");
+                table.innerHTML = "";
+                for (var i = 0; i < vorgang.plaetze.length; i++) {
+                    var selection = vorgang.plaetze[i];
+
+                    var tr = document.createElement("tr");
+                    var td1 = document.createElement("td");
+                    var dateString = selection.date + " " + selection.time;
+                    td1.innerHTML = dateString;
+                    var td2 = document.createElement("td");
+                    td2.innerHTML = selection.block;
+                    var td3 = document.createElement("td");
+                    td3.innerHTML = selection.reihe;
+                    var td4 = document.createElement("td");
+                    td4.innerHTML = selection.platz;
+
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tr.appendChild(td4);
+                    table.appendChild(tr);
+
+                    if (oldDateString !== dateString) {
+                        oldDateString = dateString;
+                        td1.style.borderTop = "1px solid";
+                        td2.style.borderTop = "1px solid";
+                        td3.style.borderTop = "1px solid";
+                        td4.style.borderTop = "1px solid";
+                    }
+                }
+            }
+
+
+            function displayVorgangInformation() {
+                document.getElementById("vorgangNr").innerHTML = vorgang.nummer >= 0 ? vorgang.nummer : "Noch nicht gespeichert";
+                document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname : "";
+                document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname : "";
+                document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email : "";
+                document.getElementById("vorgangTel").innerHTML = vorgang.telefon ? vorgang.telefon : "";
+                if (vorgang.bezahlart === "VIP" || vorgang.bezahlart === "TripleA") {
+                    document.getElementById("vorgangPreisIsVIP").style.display = "block";
+                    document.getElementById("vorgangPreisNoVIP").style.display = "none";
+                } else {
+                    document.getElementById("vorgangPreisNoVIP").innerHTML = (vorgang.preis ? vorgang.preis : sitzplan.kartenPreis).toFixed(2) + "&euro;";
+                    document.getElementById("vorgangPreisIsVIP").style.display = "none";
+                    document.getElementById("vorgangPreisNoVIP").style.display = "block";
+                }
+                document.getElementById("vorgangGesPreis").innerHTML = vorgang.gesamtpreis.toFixed(2) + "&euro;";
+                document.getElementById("vorgangBezahlart").value = vorgang.bezahlart ? vorgang.bezahlart : "Bar";
+                document.getElementById("vorgangBezahlung").value = vorgang.bezahlung ? vorgang.bezahlung : "offen";
+                document.getElementById("vorgangVersand").value = vorgang.versandart ? vorgang.versandart : "Abholung";
+                document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift : "";
+                document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar : "";
+
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Vorgang f&uuml;r: <span id="veranstaltungsName">Loading...</span></h1>
+        <div class="uebersicht" >
+            <h3>Platz &Uuml;bersicht</h3>
+            <table class="plaetze">
+                <thead>
+                    <tr>
+                        <th>Vorstellung</th>
+                        <th>Block</th>
+                        <th>Reihe</th>
+                        <th>Platz</th>
+                    </tr>
+                </thead>
+                <tbody id="platzTable">
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="uebersicht" >
+            <h3>Vorgang &Uuml;bersicht</h3>
+            <table>
+                <tr>
+                    <td>Nummer:</td>
+                    <td id="vorgangNr"></td>
+                </tr>
+                <tr>
+                    <td>Vorname:</td>
+                    <td id="vorgangVorname"></td>
+                </tr>
+                <tr>
+                    <td>Nachname:</td>
+                    <td id="vorgangNachname" ></td>
+                </tr>
+                <tr>
+                    <td>E-Mail:</td>
+                    <td id="vorgangEmail" ></td>
+                </tr>
+                <tr>
+                    <td>Telefon:</td>
+                    <td id="vorgangTel"></td>
+                </tr>
+                <tr>
+                    <td>Einzelpreis</td>
+                    <td> 
+                        <span id="vorgangPreisNoVIP"></span>
+                        <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Gesamtpreis:</td>
+                    <td id="vorgangGesPreis"></td>
+                </tr>
+                <tr>
+                    <td>Bezahlart:</td>
+                    <td> <select id="vorgangBezahlart" disabled >
+                            <option value="Bar">Bar</option>
+                            <option value="Ueberweisung">&Uuml;berweisung</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Abendkasse">Abendkasse</option>
+                            <option value="VIP">VIP</option>
+							<option value="TripleA">Triple A</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Bezahlt:</td>
+                    <td> <select id="vorgangBezahlung" disabled >
+                            <option value="offen">offen</option>
+                            <option value="bezahlt">bezahlt</option>
+                            <option value="Abendkasse">bezahlt an der Abendkasse</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Versandart:</td>
+                    <td> <select id="vorgangVersand" disabled >
+                            <option value="Abholung">Abholung</option>
+							<option value="E-Mail">E-Mail</option>
+                            <option value="Post">Post</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Anschrift:</td>
+                    <td id="vorgangAnschrift"></td>
+                </tr>
+                <tr>
+                    <td>Kommentar:</td>
+                    <td id="vorgangKommentar" ></td>
+                </tr>
+            </table>
+        </div>
+        <div id="debug" ></div>
+    </body>
+</html>

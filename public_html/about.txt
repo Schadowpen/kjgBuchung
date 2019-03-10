@@ -1,0 +1,89 @@
+------------
+| E-Mail 1 |
+------------
+
+Eine Veranstaltung ist die Summe aller Vorstellungen. Eine Veranstaltung ist quasi unser Projekt (z.B. Zauberer von Oz)., eine Vorstellung ist dann die jeweilige Aufführung. Eine Veranstaltung kann n-beliebige Vorstellungen beinhalten (mindestens jedoch 1) und braucht einen frei zu definierenden Namen.
+
+Pro Vorstellung einer Veranstaltung (DATUM + UHRZEIT) gibt es einen Sitzplan (siehe für Oz beigefügt, im „Süden“ gibt es die Reihe J bewusst nicht). Jeder Sitz ist eindeutig bestimmbar durch Block, Reihe und Platznummer. 
+
+Was wir brauchen: ein Web-Interface, auf dem wir folgendes machen können (im ersten Schritt nur „intern“):
+
+- Auswählen von n-beliebig vielen Plätzen und einem „Vorgang“ zuordnen
+- Vorgang benötigt Name, Vorname, Email und/oder Telefonnummer
+- Status über die Bezahlart: Bar, Überweisung, PayPal* (will ich ab diesem Jahr mal versuchen), Abendkasse, VIP
+- Status über die Bezahlung: offen, bezahlt, bezahlt an der Abendkasse
+- Versandart hat die Optionen Abholung oder Post - bei Post muss noch die Anschrift erfasst werden und 2,50 € Versandgebühr drauf.
+- jeder Vorgang sollte ein Kommentarfeld haben, um Notizen zu hinterlegen
+- den Beitrag (Preis) pro Karte sollte man als Default einstellen können (z.B. 5 €) aber pro Buchung auch verändern können.
+- Wenn die Karte VIP ist steht unter Beitrag „VIP“
+- pro Vorgang sollte man einen Vorgangs-Report drucken können, der zeigt, welche Sitze und Buchungsnnummern in welchem Status sind.
+- Jeder Vorgang sollte eine Vorgangsnummer haben.
+- Vorgänge sollten nachher suchbar sein nach Name, Veranstaltung, Vorstellung und/oder Vorgangsnummer
+
+Jeder Platz hat einen Status:
+frei - buchbar (grau)
+reserviert - durch einen Vorgang geblockt (gelb)
+gebucht - nur wenn der Vorgang als „bezahlt“ markiert ist (grün)
+gesperrt - Plätze, die nicht in den Verkauf gehen (rot)
+
+Wenn eine Karte den Status „bezahlt“ oder „bezahlt an der Abendkasse“ hat, können die Tickets ausgedruckt werden. Siehe dafür ein Muster in der Anlage (das ist noch nicht final, aber die Struktur bleibt. Einmal ein Muster mit ausgefüllten Datenbankfeldern und 1x eine Version ohne alles. Wenn du ein anderes Format brauchst, sag Bescheid).
+
+In einer Übersicht brauchen wir:
+jeweils 1x für eine Veranstaltung:
+Summe Sitzplätzen, Summe verkauft, Summe reserviert, Summe VIP, Summe verfügbar, Summe Beiträge
+jeweils für jede Vorstellung einer Veranstaltung:
+Summe Sitzplätzen, Summe verkauft, Summe reserviert, Summe VIP, Summe verfügbar, Summe Beiträge
+
+Wenn das gut läuft, fände ich eine WebApp auch ganz gut, die sich in unsere Wordpress Homepage einbetten lässt.
+
+Was den Webserver, den wir bei Strato hosten angeht, musst du mal sagen, was wir brauchen. Wir haben eine MySQL Datenbank (5.6.40) laufen. PHP ist derzeit auf 7.0.
+
+
+------------
+| E-Mail 2 |
+------------
+
+> MySQL
+> Mich irritiert ein wenig dass du geschrieben hast, dass bei euch eine Datenbank läuft. Was macht die denn aktuell?
+> Ansonsten bräuchte ich einen Nutzer mit allen Rechten und der Möglichkeit Nutzer zu erstellen und Rechte zu verteilen (with grant option). Ich sollte von zu hause aus auf die Datenbank zugreifen können. Addresse der Datenbank nicht vergessen.
+
+Wir pflegen unsere Seite mit Wordpress und die Datenbank pflegt die Wordpress Inhalte. Ggf, ist es sinnvoll, hier eine zweite Datenbank anzulegen. Benutzername ist gerade kompliziert, weil in der Version von Strato diese Einstellung fehlt :-(
+Vielleicht müssen wir uns das bei mir einmal anschauen.
+
+>
+> PHP
+> Zitat von Wikipedia zu Version 7.0: "Über 10.000 Fehlerkorrekturen, Unterstützung für 64-Bit. Alle veralteten Funktionen wurden entfernt." Updates sind also sinnvoll, aber nicht zwingend notwendig.
+> Als Serverseitige Sprache wird PHP bestimmt eingesetzt werden, allein schon um die Datenbank abzufragen.
+
+Ich habe jetzt auf PHP 7.0 geupgraded. Wir können auch auf 7.1 und 7.2 gehen. Das musst du entscheiden. Wordpress hat mit beiden kein Problem.
+
+>
+> Organisatoren Client
+> Um die Daten auf der Datenbank zu bearbeiten braucht es einen Client. Die Organisatoren wollen ja wohl kaum mit Kommandozeilen und SQL-Befehlen arbeiten. Soll dieser Client auf www.kjg-theater.de, auf einem anderen Webserver oder als eigenständiges Programm geschrieben werden, dass dann die Betroffenen auf Ihrem PC installieren müssen? (Bei letzter Option wird es garantiert ein Java-Programm).
+
+Ich finde eine „kryptische“ Subdomain wie kjg-theater.de/%tixcli& oder so am besten. Am besten können dann die Anwender Zugriff auf diese Seite haben und den Bereich nutzen. Idealerweise machen wir die Seite noch passwortgeschützt.
+
+>
+> WordPress
+> Die WebApp für die Zuschauer wird - sofern sie fertig wird - Teil der kjg-Webseite sein. Die Frage ist, ob der Client für die Organisatoren ebenfalls eine Webanwendung sein wird. Falls Ja wäre es sinnvoll, dies hinter einem Login zu verstecken. Das wirft die Frage auf, WAS man WIE hinter dem Login verstecken kann. Schließlich sollte der Client und alle damit verbundenen .html, .js &Co - Dateien nur von den gewissen Personen heruntergeladen werden dürfen.
+> Die Möglichkeit, Seiten zu erstellen und zu bearbeiten, wäre gut. Genauso selbst geschriebene Dateien dort hochzuladen.
+> Ich möchte nicht verschweigen, dass ich von WordPress ausschließlich den Namen kenne. Ich gehe bislang davon aus, dass es einen Hintereingang gibt, womit ich die Webseite intuitiv oder durch Tutorials geleitet bearbeiten kann.
+
+Das verstehe ich jetzt nicht wirklich. Wie gesagt, das CMS von uns ist bereits WP. In WP kann man SourceCode aber hochladen.
+Der FTP Zugang ist übrigens: ftp_dev@kjg-theater.de und das PW ist TixDev2018!
+
+>
+> Tickets
+> Die Tickets zu erstellen und zu drucken stelle ich mir aktuell nicht so einfach vor, deshalb würde ich das gerne als zusätzlichen Schritt machen, nachdem das eigentliche Buchungssystem grundsätzlich läuft. Der Zuschauerclient wird dann Schritt drei.
+> Welches Format ich da brauche kann ich noch nicht sagen.
+
+Grundsätzlich verstanden, aber der „Druck“ der Tickets ist ja systemkritisch. Ohne das macht die Anwendung keinen Sinn. Also Schritt 1 & 2 werden benötigt, um das Ding nutzbar zu machen. Aber ich gebe dir Recht, dass zunächst einmal der Rest „stehen“ muss.
+
+
+https://elbnetz.com/geschuetzten-mitgliederbereich-in-wordpress/
+
+
+
+
+
+

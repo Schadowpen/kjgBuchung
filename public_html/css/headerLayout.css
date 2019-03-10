@@ -1,0 +1,24 @@
+header {
+    background: black;
+    padding: 10px;
+    margin-bottom: 30px;
+}
+
+header a {
+    background: green;
+    color: white;
+    padding: 10px;
+    margin: 0 1em;
+}
+
+header a:hover {
+    background: limegreen;
+}
+
+header a:active {
+    color: aqua;
+}
+
+body {
+    margin: 0;
+}
