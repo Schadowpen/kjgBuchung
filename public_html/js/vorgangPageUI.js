@@ -1,10 +1,11 @@
-/* global vorstellungen, getSelectedSeat, vorgang, objectsToLoad, selectedSeats, sitzplan, apiSchluessel */
+/* global vorstellungen, getSelectedSeat, vorgang, objectsToLoad, selectedSeats, sitzplan, apiSchluessel, apiUrl, htmlFilesUrl */
 
 var selectedDateIndex = 0;
 var vorgangUnsavedChanges = false;
+var theaterkarteUpdateAllowed = false;
 
 function loadUI() {
-    objectsToLoad += 5;
+    objectsToLoad += 1;
 
     var query = parseQueryString(window.location.search.substring(1));
     if (query.nummer) {
@@ -13,11 +14,8 @@ function loadUI() {
         ladeVorgang(vorgangsNr, function () {
             displayVorgangInformation();
             loadingComplete();
-            if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-                document.getElementById("kartenDrucken").disabled = false;
-                document.getElementById("kartenDruckenMediumRes").disabled = false;
-                document.getElementById("kartenDruckenLowRes").disabled = false;
-            }
+            if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+                disableEintrittskartenUI(false)
             document.getElementById("vorgangDrucken").disabled = false;
         });
     } else {
@@ -30,31 +28,6 @@ function loadUI() {
             document.getElementById("vorgangLoeschen").disabled = true;
         });
     }
-
-    eintrittskarteImage = new Image();
-    eintrittskarteImage.src = "images/Eintrittskarte_Model.jpg";
-    eintrittskarteImage.onload = loadingComplete();
-
-    eintrittskarteImageMediumResolution = new Image();
-    eintrittskarteImageMediumResolution.src = "images/Eintrittskarte_Model_medium_Resolution.jpg";
-    eintrittskarteImageMediumResolution.onload = loadingComplete();
-
-    eintrittskarteImageLowResolution = new Image();
-    eintrittskarteImageLowResolution.src = "images/Eintrittskarte_Model_low_Resolution.jpg";
-    eintrittskarteImageLowResolution.onload = loadingComplete();
-
-
-    var xmlHttp1 = new XMLHttpRequest();
-    if (xmlHttp1) {
-        xmlHttp1.open('GET', "html/printImage.html", true);
-        xmlHttp1.onreadystatechange = function () {
-            if (xmlHttp1.readyState === 4) {
-                printImageHtml = xmlHttp1.responseText;
-                loadingComplete();
-            }
-        };
-    }
-    xmlHttp1.send(null);
 }
 
 function initUI() {
@@ -106,6 +79,20 @@ function initUI() {
     draw();
 }
 
+/**
+ * Enabled das gesamte Menü, um Theaterkarten auszudrucken und anderes
+ * @param {bool} disabled
+ */
+function disableEintrittskartenUI(disabled) {
+    var blockedByCORSPolicy = vorgang.theaterkarte != null && getURLOrigin(vorgang.theaterkarte) !== location.origin;
+
+    document.getElementById("eintrittskartenUI").disabled = disabled;
+    document.getElementById("kartenOeffnen").disabled = disabled;
+    document.getElementById("kartenLinkKopieren").disabled = disabled;
+    document.getElementById("kartenHerunterladen").disabled = disabled || blockedByCORSPolicy;
+    document.getElementById("kartenDrucken").disabled = disabled || blockedByCORSPolicy;
+}
+
 function onDateChanged() {
     var dateSelector = document.getElementById("date");
     var dateNumber = dateSelector.options.selectedIndex;
@@ -116,7 +103,15 @@ function onDateChanged() {
 }
 
 function onSeatClicked(clickedSeat) {
+    // Bereits gespeicherte Vorgang
     if (vorgang.nummer >= 0) {
+        if (vorgang.theaterkarte != null && !theaterkarteUpdateAllowed) {
+            if (!window.confirm("Für diesen Vorgang wurden bereits Theaterkarten erstellt. Ein Ändern der Sitzplätze würde die Theaterkarten neu erstellen.\n\nTrotzdem fortfahren?"))
+                return;
+            else
+                theaterkarteUpdateAllowed = true;
+        }
+
         setClickableSeats([]);
         var dateIndex = selectedDateIndex;
         if (isSelectedSeat(dateIndex, clickedSeat)) {
@@ -139,6 +134,8 @@ function onSeatClicked(clickedSeat) {
                 onVorgangCalculationChanged();
             }
         }, nummer);
+
+        // Noch nicht gespeicherter Vorgang
     } else {
         antiselectSeat(selectedDateIndex, clickedSeat);
         if (vorstellungen[selectedDateIndex][clickedSeat.ID] == null)
@@ -195,9 +192,7 @@ function onUpdateDataFinished() {
 
 // when something of Vorgang is edited
 function onVorgangChanged() {
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
+    disableEintrittskartenUI(true);
     document.getElementById("vorgangDrucken").disabled = true;
     document.getElementById("vorgangSpeichern").disabled = false;
     vorgangUnsavedChanges = true;
@@ -264,19 +259,38 @@ function onVorgangCalculationChanged() {
     }
     document.getElementById("vorgangGesPreis").innerHTML = vorgang.gesamtpreis.toFixed(2) + "&euro;";
 
-    // reserviert/gebucht
-    if (vorgang.bezahlung === "bezahlt") {
-        var status = "gebucht";
-    } else {
-        var status = "reserviert";
-    }
-    for (var i = 0; i < selectedSeats.length; i++) {
-        vorstellungen[selectedSeats[i].dateIndex][selectedSeats[i].seat.ID].status = status;
-    }
-    draw();
+    displaySeatStatus();
 }
 
 function onVorgangSave() {
+    // Check for Ticket regeneration
+    if (vorgang.theaterkarte != null && !theaterkarteUpdateAllowed) {
+        if (!window.confirm("Für diesen Vorgang wurden bereits Theaterkarten erstellt. Jegliche Änderungen würden diese Theaterkarten neu erstellen.\n\nTrotzdem fortfahren?")) {
+            document.getElementById("vorgangSpeichern").disabled = true;
+            document.getElementById("vorgangDrucken").disabled = true;
+            document.getElementById("vorgangLoeschen").disabled = true;
+            disableEintrittskartenUI(true);
+            ladeVorgang(vorgang.nummer, function (success) {
+                if (success) {
+                    displayVorgangInformation();
+                    displaySeatStatus();
+                    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+                        disableEintrittskartenUI(false);
+                    document.getElementById("vorgangDrucken").disabled = false;
+                    document.getElementById("vorgangLoeschen").disabled = false;
+                    vorgangUnsavedChanges = false;
+                } else {
+                    document.getElementById("vorgangSpeichern").disabled = false;
+                    document.getElementById("vorgangLoeschen").disabled = false;
+                    vorgangUnsavedChanges = true;
+                }
+            });
+            return;
+        } else {
+            theaterkarteUpdateAllowed = true;
+        }
+    }
+
     // Check for Valid
     vorgang.vorname = document.getElementById("vorgangVorname").value;
     if (vorgang.vorname == null || vorgang.vorname == "") {
@@ -310,13 +324,13 @@ function onVorgangSave() {
     vorgang.bezahlart = document.getElementById("vorgangBezahlart").value;
     vorgang.bezahlung = document.getElementById("vorgangBezahlung").value;
     vorgang.kommentar = document.getElementById("vorgangKommentar").value;
+    var firstSave = vorgang.nummer < 0;
+
+    // disable Buttons while upload
     document.getElementById("vorgangSpeichern").disabled = true;
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
     document.getElementById("vorgangDrucken").disabled = true;
     document.getElementById("vorgangLoeschen").disabled = true;
-    var firstSave = vorgang.nummer < 0;
+    disableEintrittskartenUI(true);
 
     // Upload
     speichereVorgang(function (success) {
@@ -327,25 +341,12 @@ function onVorgangSave() {
                 query.nummer = vorgang.nummer;
                 var newurl = window.location.origin + window.location.pathname + "?" + getURLQuery(query);
                 window.history.replaceState('', '', newurl);
-                //window.history.pushState({path: newurl}, '', newurl);
 
-                // reserviert/gebucht
-                if (vorgang.bezahlung === "bezahlt") {
-                    var status = "gebucht";
-                } else {
-                    var status = "reserviert";
-                }
-                for (var i = 0; i < selectedSeats.length; i++) {
-                    vorstellungen[selectedSeats[i].dateIndex][selectedSeats[i].seat.ID].status = status;
-                }
-                draw();
+                displaySeatStatus();
             }
             displayVorgangInformation();
-            if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-                document.getElementById("kartenDrucken").disabled = false;
-                document.getElementById("kartenDruckenMediumRes").disabled = false;
-                document.getElementById("kartenDruckenLowRes").disabled = false;
-            }
+            if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+                disableEintrittskartenUI(false);
             document.getElementById("vorgangDrucken").disabled = false;
             document.getElementById("vorgangLoeschen").disabled = false;
             vorgangUnsavedChanges = false;
@@ -383,14 +384,12 @@ function onVorgangDelete() {
         return;
 
     document.getElementById("vorgangSpeichern").disabled = true;
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
+    disableEintrittskartenUI(true);
     document.getElementById("vorgangDrucken").disabled = true;
     document.getElementById("vorgangLoeschen").disabled = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', "http://localhost:8000/deleteVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    xmlHttp.open('GET', apiUrl + "deleteVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
 
@@ -402,11 +401,8 @@ function onVorgangDelete() {
                     document.getElementById("vorgangSpeichern").disabled = true;
                     document.getElementById("vorgangLoeschen").disabled = true;
                 } else {
-                    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-                        document.getElementById("kartenDrucken").disabled = false;
-                        document.getElementById("kartenDruckenMediumRes").disabled = false;
-                        document.getElementById("kartenDruckenLowRes").disabled = false;
-                    }
+                    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+                        disableEintrittskartenUI(false);
                     document.getElementById("vorgangDrucken").disabled = false;
                     document.getElementById("vorgangLoeschen").disabled = false;
                 }
@@ -486,12 +482,24 @@ function displayVorgangInformation() {
     document.getElementById("vorgangVersand").value = vorgang.versandart ? vorgang.versandart : "Abholung";
     document.getElementById("vorgangAnschrift").value = vorgang.anschrift ? vorgang.anschrift : "";
     document.getElementById("vorgangKommentar").value = vorgang.kommentar ? vorgang.kommentar : "";
+}
 
+function displaySeatStatus() {
+    // reserviert/gebucht
+    if (vorgang.bezahlung === "bezahlt") {
+        var status = "gebucht";
+    } else {
+        var status = "reserviert";
+    }
+    for (var i = 0; i < selectedSeats.length; i++) {
+        vorstellungen[selectedSeats[i].dateIndex][selectedSeats[i].seat.ID].status = status;
+    }
+    draw();
 }
 
 
 function onVorgangDrucken() {
-    var printWindow = window.open('html/printVorgang.html', 'to_print', 'height=600,width=800');
+    var printWindow = window.open(htmlFilesUrl + 'printVorgang.html', 'to_print', 'height=600,width=800');
     printWindow.apiSchluessel = apiSchluessel;
     printWindow.focus();
     printWindow.addEventListener("load", function () {
@@ -499,156 +507,124 @@ function onVorgangDrucken() {
     });
 }
 
-var eintrittskarteImage;
-var eintrittskarteImageMediumResolution;
-var eintrittskarteImageLowResolution;
-var printImageHtml;
+function onKartenOeffnen() {
+    disableEintrittskartenUI(true);
+    erstelleVorgangTheaterkarte(function (success) {
+        if (!success)
+            return;
+
+        window.open(vorgang.theaterkarte);
+
+        if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+            disableEintrittskartenUI(false);
+    });
+}
+
+function onKartenLinkKopieren() {
+    disableEintrittskartenUI(true);
+    erstelleVorgangTheaterkarte(function (success) {
+        if (!success)
+            return;
+
+        // Create text element and copy content
+        var link = document.createElement("input");
+        document.body.appendChild(link);
+        link.value = vorgang.theaterkarte;
+        link.focus();
+        link.select();
+        var successfull = document.execCommand("copy");
+
+        // Show success message
+        if (successfull)
+            alert("Link zur Theaterkarte wurde in die Zwischenablage kopiert");
+        else
+            alert("Folgender Link konnte nicht in die Zwischenanlage kopiert werden:\n\n" + vorgang.theaterkarte)
+        // remove actually visible text element from DOM
+        link.remove();
+        delete link;
+
+        if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+            disableEintrittskartenUI(false);
+    });
+}
+
+function onKartenDownload() {
+    disableEintrittskartenUI(true);
+    erstelleVorgangTheaterkarte(function (success) {
+        if (!success)
+            return;
+
+        if (getURLOrigin(vorgang.theaterkarte) !== location.origin) {
+            window.alert("Direktes Herunterladen wird nicht unterstützt. Als Ausweichlösung werden die Theaterkarten in einem neuen Tab geöffnet!");
+            window.open(vorgang.theaterkarte);
+
+        } else {
+            var filename = decodeURIComponent(vorgang.theaterkarte.substr(vorgang.theaterkarte.lastIndexOf('/') + 1));
+
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open('GET', vorgang.theaterkarte, true);
+			xmlHttp.responseType = "arraybuffer";
+            xmlHttp.onreadystatechange = function () {
+                if (xmlHttp.readyState === 4) {
+					var file = new Blob([xmlHttp.response], {type: "application/pdf"});
+					if (window.navigator.msSaveOrOpenBlob) // IE10+
+						window.navigator.msSaveOrOpenBlob(file, filename);
+					else { // Others
+						var a = document.createElement("a")
+						var url = URL.createObjectURL(file);
+						a.href = url;
+						a.download = filename;
+						document.body.appendChild(a);
+						a.click();
+						setTimeout(function () {
+							document.body.removeChild(a);
+							window.URL.revokeObjectURL(url);
+						}, 0);
+					}
+                }
+            };
+            xmlHttp.send(null);
+        }
+
+        if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+            disableEintrittskartenUI(false);
+    });
+}
 
 function onKartenDrucken() {
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
-    var imagesHtml = "";
-    for (var i = 0; i < vorgang.plaetze.length; i++) {
-        var canvas = document.createElement("canvas");
-        canvas.style.display = "none";
-        canvas.width = eintrittskarteImage.width;
-        canvas.height = eintrittskarteImage.height;
+    disableEintrittskartenUI(true);
+    erstelleVorgangTheaterkarte(function (success) {
+        if (!success)
+            return;
 
-        //Draw to Canvas
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(eintrittskarteImage, 0, 0);
+        if (getURLOrigin(vorgang.theaterkarte) !== location.origin) {
+            window.alert("Direktes Drucken wird nicht unterstützt. Als Ausweichlösung werden die Theaterkarten in einem neuen Tab geöffnet!");
+            window.open(vorgang.theaterkarte);
 
-        // add text
-        ctx.font = "50px Times New Roman";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].date), 1970, 391);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].time), 1970, 550);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].block), 1970, 750);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].reihe), 1970, 917);
-        ctx.fillText(vorgang.plaetze[i].platz, 1970, 1088);
-        ctx.fillText((vorgang.bezahlart === "VIP" ? "VIP" : (vorgang.preis ? vorgang.preis : sitzplan.kartenPreis).toFixed(2) + "€"), 1970, 1260);
-        ctx.fillText(vorgang.bezahlung === "bezahlt" ? "bezahlt" : (vorgang.bezahlung === "Abendkasse" ? "zahlt an der Abendkasse" : "offen"), 1970, 1378);
-        ctx.fillText(vorgang.nummer, 1970, 1647);
+        } else {
+            var iframe = this._printIframe;
+            if (!this._printIframe) {
+                iframe = this._printIframe = document.createElement('iframe');
+                document.body.appendChild(iframe);
+                iframe.style.display = 'none';
+                iframe.onload = function () {
+                    setTimeout(function () {
+						try {
+                        iframe.focus();
+                        iframe.contentWindow.print();
+						} catch (error) {
+							window.alert("Direktes Drucken wird nicht unterstützt. Als Ausweichlösung werden die Theaterkarten in einem neuen Tab geöffnet!");
+							window.open(vorgang.theaterkarte);
+						}
+                    }, 1);
+                };
+            }
+            iframe.src = vorgang.theaterkarte;
+        }
 
-        //From the canvas you can create a data URL
-        var url = canvas.toDataURL();
-        imagesHtml += '<img src="' + url + '" /><br/>';
-    }
-    var html = printImageHtml;
-    var html = html.replace('<img src="image.jpg" />', imagesHtml);
-
-    var printWindow = window.open('', 'to_print', 'height=600,width=800');
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-        document.getElementById("kartenDrucken").disabled = false;
-        document.getElementById("kartenDruckenMediumRes").disabled = false;
-        document.getElementById("kartenDruckenLowRes").disabled = false;
-    }
-}
-
-function onKartenDruckenMediumRes() {
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
-    var imagesHtml = "";
-    for (var i = 0; i < vorgang.plaetze.length; i++) {
-        var canvas = document.createElement("canvas");
-        canvas.style.display = "none";
-        canvas.width = eintrittskarteImageMediumResolution.width;
-        canvas.height = eintrittskarteImageMediumResolution.height;
-
-        //Draw to Canvas
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(eintrittskarteImageMediumResolution, 0, 0);
-
-        // add text
-        ctx.font = "25px Times New Roman";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].date), 985, 195);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].time), 985, 275);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].block), 985, 375);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].reihe), 985, 460);
-        ctx.fillText(vorgang.plaetze[i].platz, 985, 544);
-        ctx.fillText((vorgang.bezahlart === "VIP" ? "VIP" : (vorgang.preis ? vorgang.preis : sitzplan.kartenPreis).toFixed(2) + "€"), 985, 630);
-        ctx.fillText(vorgang.bezahlung === "bezahlt" ? "bezahlt" : (vorgang.bezahlung === "Abendkasse" ? "zahlt an der Abendkasse" : "offen"), 985, 684);
-        ctx.fillText(vorgang.nummer, 985, 824);
-
-        //From the canvas you can create a data URL
-        var url = canvas.toDataURL();
-        imagesHtml += '<img src="' + url + '" /><br/>';
-    }
-    var html = printImageHtml;
-    var html = html.replace('<img src="image.jpg" />', imagesHtml);
-
-    var printWindow = window.open('', 'to_print', 'height=600,width=800');
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-        document.getElementById("kartenDrucken").disabled = false;
-        document.getElementById("kartenDruckenMediumRes").disabled = false;
-        document.getElementById("kartenDruckenLowRes").disabled = false;
-    }
-}
-
-function onKartenDruckenLowRes() {
-    document.getElementById("kartenDrucken").disabled = true;
-    document.getElementById("kartenDruckenMediumRes").disabled = true;
-    document.getElementById("kartenDruckenLowRes").disabled = true;
-    var imagesHtml = "";
-    for (var i = 0; i < vorgang.plaetze.length; i++) {
-        var canvas = document.createElement("canvas");
-        canvas.style.display = "none";
-        canvas.width = eintrittskarteImageLowResolution.width;
-        canvas.height = eintrittskarteImageLowResolution.height;
-
-        //Draw to Canvas
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(eintrittskarteImageLowResolution, 0, 0);
-
-        // add text
-        ctx.font = "13px Times New Roman";
-        ctx.fillStyle = "black";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].date), 493, 97);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].time), 493, 137);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].block), 493, 187);
-        ctx.fillText(decodeEntities(vorgang.plaetze[i].reihe), 493, 230);
-        ctx.fillText(vorgang.plaetze[i].platz, 493, 272);
-        ctx.fillText((vorgang.bezahlart === "VIP" ? "VIP" : (vorgang.preis ? vorgang.preis : sitzplan.kartenPreis).toFixed(2) + "€"), 493, 315);
-        ctx.fillText(vorgang.bezahlung === "bezahlt" ? "bezahlt" : (vorgang.bezahlung === "Abendkasse" ? "zahlt an der Abendkasse" : "offen"), 493, 342);
-        ctx.fillText(vorgang.nummer, 493, 412);
-
-        //From the canvas you can create a data URL
-        var url = canvas.toDataURL();
-        imagesHtml += '<img src="' + url + '" /><br/>';
-    }
-    var html = printImageHtml;
-    var html = html.replace('<img src="image.jpg" />', imagesHtml);
-
-    var printWindow = window.open('', 'to_print', 'height=600,width=800');
-
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-
-    if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse") {
-        document.getElementById("kartenDrucken").disabled = false;
-        document.getElementById("kartenDruckenMediumRes").disabled = false;
-        document.getElementById("kartenDruckenLowRes").disabled = false;
-    }
+        if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
+            disableEintrittskartenUI(false);
+    });
 }
 
 window.onbeforeunload = function (event) {

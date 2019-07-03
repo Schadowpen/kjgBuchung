@@ -1,3 +1,4 @@
+/* global apiUrl */
 
 window.addEventListener("load", function () {
     var xmlHttp;
@@ -8,7 +9,7 @@ window.addEventListener("load", function () {
         alert("XMLHttpRequest wird von ihrem Browser nicht unterstützt.");
     }
     if (xmlHttp) {
-        xmlHttp.open('GET', "http://localhost:8000/getUebersicht.php" + "?key=" + getKey(), true);
+        xmlHttp.open('GET', apiUrl + "getUebersicht.php" + "?key=" + getKey(), true);
         xmlHttp.onreadystatechange = function () {
             if (xmlHttp.readyState === 4) {
                 if (xmlHttp.responseText.startsWith("Error:"))

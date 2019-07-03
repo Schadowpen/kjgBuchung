@@ -11,7 +11,7 @@
         <script src="js/userElementsPlacer.js"></script>
         <link rel="stylesheet" type="text/css" href="css/main.css" />
         <link rel="stylesheet" type="text/css" href="css/vorgangPage.css" />
-        
+
         <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
     </head>
     <body>
@@ -124,11 +124,23 @@
                         <td> <textarea id="vorgangKommentar" style="width: 100%; height: 6em" onchange="onVorgangChanged();"></textarea></td>
                     </tr>
                 </table>
-                <input type="button" value="Speichern" id="vorgangSpeichern" disabled onclick="onVorgangSave();"/> <input type="button" value="Vorgangsbericht drucken" id="vorgangDrucken" disabled onclick="onVorgangDrucken();" style="float: right;" /><br/>
-                <br/>
-                <input type="button" value="L&ouml;schen" id="vorgangLoeschen" onclick="onVorgangDelete();"/> <input type="button" value="Karten drucken" id="kartenDrucken" disabled onclick="onKartenDrucken();" style="float: right;" /> <br/>
-                <input type="button" value="Karten drucken (mittlere Auflösung)" id="kartenDruckenMediumRes" disabled onclick="onKartenDruckenMediumRes();" style="float: right;" /> <br/>
-                <input type="button" value="Karten drucken (geringe Auflösung)" id="kartenDruckenLowRes" disabled onclick="onKartenDruckenLowRes();" style="float: right;" /> <br/>
+                <div style="display: flex; justify-content: space-between;" >
+                    <button id="vorgangSpeichern" disabled onclick="onVorgangSave();"> <img src="images/save.png" class="buttonImage"/> Speichern </button>
+                    <button id="vorgangDrucken" disabled onclick="onVorgangDrucken();"> <img src="images/print.png" class="buttonImage"/> Vorgangsbericht drucken </button>
+                </div><br/>
+                <button id="vorgangLoeschen" onclick="onVorgangDelete();"> <img src="images/bin.png" class="buttonImage"/> <span style="color: red;">L&ouml;schen</span> </button>
+            </div>
+
+            <div class="uebersicht" id="eintrittskartenUI">
+                <h3>Eintrittskarten</h3>
+                <div style="display: flex; justify-content: space-between;" >
+                    <button id="kartenOeffnen" disabled onclick="onKartenOeffnen();"> <img src="images/newTab.png" class="buttonImage"/> In neuem Tab &ouml;ffnen </button>
+                    <button id="kartenLinkKopieren" disabled onclick="onKartenLinkKopieren();"> <img src="images/link.png" class="buttonImage"/> Link kopieren </button>
+                </div>
+                <div style="display: flex; justify-content: space-between;" >
+                    <button id="kartenHerunterladen" disabled onclick="onKartenDownload();"> <img src="images/download.png" class="buttonImage"/> Herunterladen </button>
+                    <button id="kartenDrucken" disabled onclick="onKartenDrucken();"> <img src="images/print.png" class="buttonImage"/> Ausdrucken </button>
+                </div>
             </div>
         </div>
 

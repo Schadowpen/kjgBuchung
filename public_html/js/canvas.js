@@ -12,7 +12,7 @@
 // globals from data.js
 /* global sitzplan, vorstellungen, objectsToLoad */
 // globals from mainPageUI.js
-/* global selectedDateIndex, onSeatClicked */
+/* global selectedDateIndex, onSeatClicked, imagesUrl */
 
 var seatGray;
 var seatGrayHighlighted;
@@ -36,83 +36,83 @@ function loadCanvas() {
 
     // load seatGray
     seatGray = new Image();
-    seatGray.src = "images/seat_gray.png";
     seatGray.onload = loadingComplete();
+    seatGray.src = imagesUrl + "seat_gray.png";
 
     // load seatGrayHighlighted
     seatGrayHighlighted = new Image();
-    seatGrayHighlighted.src = "images/seat_gray_highlighted.png";
     seatGrayHighlighted.onload = loadingComplete();
+    seatGrayHighlighted.src = imagesUrl + "seat_gray_highlighted.png";
 
     // load seatGraySelected
     seatGraySelected = new Image();
-    seatGraySelected.src = "images/seat_gray_selected.png";
     seatGraySelected.onload = loadingComplete();
+    seatGraySelected.src = imagesUrl + "seat_gray_selected.png";
 
     // load seatGrayHighlighted
     seatGrayHighlightedSelected = new Image();
-    seatGrayHighlightedSelected.src = "images/seat_gray_highlighted_selected.png";
     seatGrayHighlightedSelected.onload = loadingComplete();
+    seatGrayHighlightedSelected.src = imagesUrl + "seat_gray_highlighted_selected.png";
 
     // load seatRed
     seatRed = new Image();
-    seatRed.src = "images/seat_red.png";
     seatRed.onload = loadingComplete();
+    seatRed.src = imagesUrl + "seat_red.png";
 
     // load seatRedHighlighted
     seatRedHighlighted = new Image();
-    seatRedHighlighted.src = "images/seat_red_highlighted.png";
     seatRedHighlighted.onload = loadingComplete();
+    seatRedHighlighted.src = imagesUrl + "seat_red_highlighted.png";
 
     // load seatRedSelected
     seatRedSelected = new Image();
-    seatRedSelected.src = "images/seat_red_selected.png";
     seatRedSelected.onload = loadingComplete();
+    seatRedSelected.src = imagesUrl + "seat_red_selected.png";
 
     // load seatRedHighlightedSelected
     seatRedHighlightedSelected = new Image();
-    seatRedHighlightedSelected.src = "images/seat_red_highlighted_selected.png";
     seatRedHighlightedSelected.onload = loadingComplete();
+    seatRedHighlightedSelected.src = imagesUrl + "seat_red_highlighted_selected.png";
 
     // load seatYellow
     seatYellow = new Image();
-    seatYellow.src = "images/seat_yellow.png";
     seatYellow.onload = loadingComplete();
+    seatYellow.src = imagesUrl + "seat_yellow.png";
 
     // load seatYellowHighlighted
     seatYellowHighlighted = new Image();
-    seatYellowHighlighted.src = "images/seat_yellow_highlighted.png";
     seatYellowHighlighted.onload = loadingComplete();
+    seatYellowHighlighted.src = imagesUrl + "seat_yellow_highlighted.png";
 
     // load seatYellowSelected
     seatYellowSelected = new Image();
-    seatYellowSelected.src = "images/seat_yellow_selected.png";
     seatYellowSelected.onload = loadingComplete();
+    seatYellowSelected.src = imagesUrl + "seat_yellow_selected.png";
 
     // load seatYellowHighlightedSelected
     seatYellowHighlightedSelected = new Image();
-    seatYellowHighlightedSelected.src = "images/seat_yellow_highlighted_selected.png";
     seatYellowHighlightedSelected.onload = loadingComplete();
+    seatYellowHighlightedSelected.src = imagesUrl + "seat_yellow_highlighted_selected.png";
 
     // load seatGreen
     seatGreen = new Image();
-    seatGreen.src = "images/seat_green.png";
     seatGreen.onload = loadingComplete();
+    seatGreen.src = imagesUrl + "seat_green.png";
 
     // load seatGreenHighlighted
     seatGreenHighlighted = new Image();
-    seatGreenHighlighted.src = "images/seat_green_highlighted.png";
     seatGreenHighlighted.onload = loadingComplete();
+    seatGreenHighlighted.src = imagesUrl + "seat_green_highlighted.png";
 
     // load seatGreenSelected
     seatGreenSelected = new Image();
-    seatGreenSelected.src = "images/seat_green_selected.png";
     seatGreenSelected.onload = loadingComplete();
+    seatGreenSelected.src = imagesUrl + "seat_green_selected.png";
 
     // load seatGreenHighlightedSelected
     seatGreenHighlightedSelected = new Image();
-    seatGreenHighlightedSelected.src = "images/seat_green_highlighted_selected.png";
     seatGreenHighlightedSelected.onload = loadingComplete();
+    seatGreenHighlightedSelected.src = imagesUrl + "seat_green_highlighted_selected.png";
 }
 
 

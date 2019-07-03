@@ -1,3 +1,5 @@
+/* global apiUrl */
+
 var veranstaltung;
 var vorstellungen;
 var vorgaenge;
@@ -51,7 +53,7 @@ window.addEventListener("load", function () {
         alert("XMLHttpRequest wird von ihrem Browser nicht unterstützt.");
     }
     if (xmlHttp1) {
-        xmlHttp1.open('GET', "http://localhost:8000/getVeranstaltung.php", true);
+        xmlHttp1.open('GET', apiUrl + "getVeranstaltung.php", true);
         xmlHttp1.onreadystatechange = function () {
             if (xmlHttp1.readyState === 4) {
                 veranstaltung = JSON.parse(xmlHttp1.responseText);
@@ -62,7 +64,7 @@ window.addEventListener("load", function () {
         
         // load vorstellungen
         var xmlHttp2 = new XMLHttpRequest();
-        xmlHttp2.open('GET', "http://localhost:8000/getVorstellungen.php", true);
+        xmlHttp2.open('GET', apiUrl + "getVorstellungen.php", true);
         xmlHttp2.onreadystatechange = function () {
             if (xmlHttp2.readyState === 4) {
                 vorstellungen = JSON.parse(xmlHttp2.responseText);
@@ -80,7 +82,7 @@ window.addEventListener("load", function () {
 
         // load vorgaenge
         var xmlHttp3 = new XMLHttpRequest();
-        xmlHttp3.open('GET', "http://localhost:8000/getVorgaengeWithInfo.php" + "?key="+getKey(), true);
+        xmlHttp3.open('GET', apiUrl + "getVorgaengeWithInfo.php" + "?key="+getKey(), true);
         xmlHttp3.onreadystatechange = function () {
             if (xmlHttp3.readyState === 4) {
                 vorgaenge = JSON.parse(xmlHttp3.responseText);
@@ -147,7 +149,7 @@ function addVorgang(liste, vorgang) {
     var td8 = document.createElement("td");
     var vorstellungen = "";
     for (var i = 0; i < vorgang.vorstellungen.length; i++) {
-        vorstellungen += vorgang.vorstellungen[i].date + "  " + vorgang.vorstellungen[i].time + (i + 1 === vorgang.vorstellungen.length ? "" : "<br/>");
+        vorstellungen += vorgang.vorstellungen[i].date + "&nbsp;&nbsp;" + vorgang.vorstellungen[i].time + (i + 1 === vorgang.vorstellungen.length ? "" : "<br/>");
     }
     td8.innerHTML = vorstellungen;
     td8.className = "expand";

@@ -31,4 +31,5 @@ table td.shrink {
 }
 table td.expand {
     width: 25%;
+    white-space: nowrap;
 }

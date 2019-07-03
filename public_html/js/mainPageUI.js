@@ -84,14 +84,15 @@ function displaySeatInformation() {
     document.getElementById("platzStatus").innerHTML = status;
 
     var button = document.getElementById("platzButton");
+    var buttonText = button.childNodes[button.childNodes.length - 1];
     if (status === "frei") {
-        button.value = "Platz als gesperrt markieren";
+        button.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonText)
         button.disabled = false;
     } else if (status === "gesperrt") {
-        button.value = "Sperrung dieses Platzes löschen";
+        button.replaceChild(document.createTextNode("Sperrung dieses Platzes löschen"), buttonText)
         button.disabled = false;
     } else {
-        button.value = "Platz als gesperrt markieren";
+        button.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonText)
         button.disabled = true;
     }
 

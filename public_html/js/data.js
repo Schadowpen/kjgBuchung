@@ -1,4 +1,4 @@
-/* global initUI, loadUI */
+/* global initUI, loadUI, apiUrl */
 
 /**
  * This scipt provides loading, accessing and editing of background data
@@ -35,7 +35,7 @@ window.addEventListener('load', function () {
     }
     if (xmlHttp1) {
         var key = getKey();
-        xmlHttp1.open('GET', "http://localhost:8000/getSitzplan.php", true);
+        xmlHttp1.open('GET', apiUrl + "getSitzplan.php", true);
         xmlHttp1.onreadystatechange = function () {
             if (xmlHttp1.readyState === 4) {
                 if (xmlHttp1.responseText.startsWith("Error:"))
@@ -59,7 +59,7 @@ window.addEventListener('load', function () {
 
         // load bookings
         var xmlHttp2 = new XMLHttpRequest();
-        xmlHttp2.open('GET', "http://localhost:8000/getVorstellungenWithStatus.php" + "?key=" + getKey(), true);
+        xmlHttp2.open('GET', apiUrl + "getVorstellungenWithStatus.php" + "?key=" + getKey(), true);
         xmlHttp2.onreadystatechange = function () {
             if (xmlHttp2.readyState === 4) {
                 if (xmlHttp2.responseText.startsWith("Error:"))
@@ -124,7 +124,7 @@ function updateData() {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', "http://localhost:8000/getPlatzStatusse.php" + "?key=" + getKey(), true);
+    xmlHttp.open('GET', apiUrl + "getPlatzStatusse.php" + "?key=" + getKey(), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
@@ -197,7 +197,7 @@ function setzePlatzStatus(date, time, block, reihe, platz, status, returnFunc, v
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('POST', "http://localhost:8000/setPlatzStatus.php" + "?key=" + getKey(), true);
+    xmlHttp.open('POST', apiUrl + "setPlatzStatus.php" + "?key=" + getKey(), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.responseText.startsWith("Error:")) {
@@ -272,7 +272,7 @@ function ladeVorgang(vorgangsNr, returnFunc) {
     }
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', "http://localhost:8000/getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr, true);
+    xmlHttp.open('GET', apiUrl + "getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr, true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
 
@@ -310,7 +310,7 @@ function speichereVorgang(returnFunc) {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('POST', "http://localhost:8000/setVorgang.php" + "?key=" + getKey(), true);
+    xmlHttp.open('POST', apiUrl + "setVorgang.php" + "?key=" + getKey(), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
 
@@ -358,6 +358,75 @@ function berechneVorgangGesamtpreis() {
     if (vorgang.versandart === "Post") {
         vorgang.gesamtpreis += sitzplan.versandPreis;
     }
+}
+
+function erstelleVorgangTheaterkarte(returnFunc) {
+    // Überprüfe ob Theaterkarte bereits erstellt wurde
+    if (vorgang.theaterkarte != null) {
+        if (typeof returnFunc === "function")
+            returnFunc(true);
+        return;
+    }
+    
+    // check if someone other is updating something.
+    if (updating) {
+        setTimeout(function () {
+            erstelleVorgangTheaterkarte(returnFunc);
+        }, 10);
+        return;
+    }
+    updating = true;
+
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open('GET', apiUrl + "generateTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState === 4) {
+
+            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+                vorgang = JSON.parse(xmlHttp.responseText);
+                berechneVorgangZugehoerigePlaetze();
+                if (typeof returnFunc === "function")
+                    returnFunc(true);
+            } else {
+                window.alert("Theaterkarte konnte nicht erzeugt werden!\n\n" + xmlHttp.responseText);
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+            }
+            updating = false;
+        }
+    };
+    xmlHttp.send(null);
+}
+
+function loescheVorgangTheaterkarte(returnFunc) {
+    // check if someone other is updating something.
+    if (updating) {
+        setTimeout(function () {
+            loescheVorgangTheaterkarte(returnFunc);
+        }, 10);
+        return;
+    }
+    updating = true;
+
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open('GET', apiUrl + "deleteTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState === 4) {
+
+            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+                vorgang = JSON.parse(xmlHttp.responseText);
+                berechneVorgangZugehoerigePlaetze();
+                if (typeof returnFunc === "function")
+                    returnFunc(true);
+            } else {
+                window.alert("Theaterkarte konnte nicht geloescht werden!\n\n" + xmlHttp.responseText);
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+            }
+            updating = false;
+        }
+    };
+    xmlHttp.send(null);
 }
 
 

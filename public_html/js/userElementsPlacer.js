@@ -13,7 +13,7 @@ function positionUserElements() {
 
     if (canvasRight + 440 <= window.innerWidth) {
         document.getElementById("userElements").style.position = "absolute";
-        document.getElementById("userElements").style.top = (canvasTop - 100) + "px";
+        document.getElementById("userElements").style.top = (canvasTop) + "px";
         document.getElementById("userElements").style.left = (canvasRight + 30) + "px";
     } else {
         document.getElementById("userElements").style.position = "static";

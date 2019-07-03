@@ -11,7 +11,7 @@
         <script src="js/userElementsPlacer.js"></script>
         <link rel="stylesheet" type="text/css" href="css/main.css" />
         <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
-        
+
         <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
     </head>
     <body>
@@ -54,7 +54,10 @@
                     </tr>
                     <tr>
                         <td>Status:</td>
-                        <td><span id="platzStatus"></span>  <input type="button" id="platzButton" value="Platz als gesperrt markieren" disabled onclick="onSperrenClick()" style="margin-left: 20px;" /></td>
+                        <td>
+                            <span id="platzStatus"></span>
+                            <button id="platzButton" disabled onclick="onSperrenClick()" style="margin-left: 20px;"> <img src="images/locked.png" class="buttonImage"/> Platz als gesperrt markieren </button>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -62,10 +65,13 @@
 
             <div class="uebersicht" >
                 <h3>Vorgang &Uuml;bersicht</h3>
-                <p id="keinVorgang" style="display: block">
+                <div id="keinVorgang" style="display: block">
                     kein zugeh&ouml;riger Vorgang <br/>
-                    <input type="button" value="neuen Vorgang erstellen" id="vorgangErstellenButton1" onclick="location.href = urlFuerNeuenVorgang();" /> <input type="button" value="in neuem Tab erstellen" id="vorgangErstellenButton2" onclick="window.open(urlFuerNeuenVorgang());" />
-                </p>
+                    <p style="display: flex;">
+                        <button id="vorgangErstellenButton1" onclick="location.href = urlFuerNeuenVorgang();"> <img src="images/plus.png" class="buttonImage"/> neuen Vorgang erstellen </button>
+                        <button id="vorgangErstellenButton2" onclick="window.open(urlFuerNeuenVorgang());"> <img src="images/newTab.png" class="buttonImage"/> in neuem Tab erstellen </button>
+                    </p>
+                </div>
 
                 <p id="vorgangLoading" style="display: none">Loading ...</p>
 
@@ -116,7 +122,10 @@
                             <td id="vorgangKommentar"></td>
                         </tr>
                     </table>
-                    <input type="button" value="Vorgang bearbeiten" onclick="location.href = urlFuerDiesenVorgang();" /> <input type="button" value="in neuem Tab bearbeiten" onclick="window.open(urlFuerDiesenVorgang());" />
+                    <div style="display: flex;">
+                        <button onclick="location.href = urlFuerDiesenVorgang();"> <img src="images/edit.png" class="buttonImage"/> Vorgang bearbeiten </button>
+                        <button onclick="window.open(urlFuerDiesenVorgang());"> <img src="images/newTab.png" class="buttonImage"/> In neuem Tab bearbeiten </button>
+                    </div>
                 </div>
             </div>
         </div>
