@@ -1,0 +1,13 @@
+div.uebersicht.blueAnimation {
+    animation-name: blueAnimation;
+    animation-duration: 2s;
+}
+
+@keyframes blueAnimation {
+    from {
+        background-color: lightblue;
+    }
+    to {
+        background-color: white;
+    }
+}

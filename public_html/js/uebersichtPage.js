@@ -1,5 +1,8 @@
 /* global apiUrl */
 
+/**
+ * Lädt die Übersicht und fügt sie ins DOM ein
+ */
 window.addEventListener("load", function () {
     var xmlHttp;
     try {

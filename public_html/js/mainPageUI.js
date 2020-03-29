@@ -1,7 +1,14 @@
-/* global vorstellungen, getSelectedSeat, vorgang */
+/* global vorstellungen, getSelectedSeat, vorgang, urlForVorgangPage */
 
+/**
+ * Index of the date and time, which Vorstellung should be displayed
+ * @type Number
+ */
 var selectedDateIndex = 0;
 
+/**
+ * Initializes the UI, called from data.js
+ */
 function initUI() {
     var dateSelector = document.getElementById("date");
     for (var i = 0; i < vorstellungen.length; i++) {
@@ -10,10 +17,12 @@ function initUI() {
         dateSelector.options.add(opt);
     }
     dateSelector.options.selectedIndex = 0;
-    
-    document.getElementById("platzButton").disabled = true;
 }
 
+/**
+ * Function called when another date is selected.
+ * Displays the booking plan for this date and also updates the information of the selected seat
+ */
 function onDateChanged() {
     var dateSelector = document.getElementById("date");
     var dateNumber = dateSelector.options.selectedIndex;
@@ -29,11 +38,19 @@ function onDateChanged() {
     }
 }
 
+/**
+ * Function called when a seat is clicked.
+ * Marks this seat as the only selected one an displays information about this seat
+ * @param {Object} clickedSeat
+ */
 function onSeatClicked(clickedSeat) {
     setSelectedSeat(selectedDateIndex, clickedSeat);
     displaySeatInformation();
 }
 
+/**
+ * Swaps the seat status between "frei" and "gesperrt"
+ */
 function onSperrenClick() {
     var selection = getSelectedSeat();
     if (vorstellungen[selection.dateIndex][selection.seat.ID] != null) {
@@ -43,7 +60,7 @@ function onSperrenClick() {
     }
 
     if (status === "frei") {
-        document.getElementById("platzButton").disabled = true;
+        document.getElementById("platzButtonGesperrt").disabled = true;
         setzePlatzStatus(vorstellungen[selection.dateIndex].date,
                 vorstellungen[selection.dateIndex].time,
                 selection.seat.block,
@@ -52,7 +69,7 @@ function onSperrenClick() {
                 "gesperrt",
                 displaySeatInformation);
     } else if (status === "gesperrt") {
-        document.getElementById("platzButton").disabled = true;
+        document.getElementById("platzButtonGesperrt").disabled = true;
         setzePlatzStatus(vorstellungen[selection.dateIndex].date,
                 vorstellungen[selection.dateIndex].time,
                 selection.seat.block,
@@ -63,11 +80,79 @@ function onSperrenClick() {
     }
 }
 
-function onUpdateDataFinished() {
-	if (getSelectedSeat() != null)
-		displaySeatInformation();
+/**
+ * Swaps the selected seat between "reserviert"/"gebucht" and "anwesend"
+ */
+function onAnwesendClick() {
+    var selection = getSelectedSeat();
+    if (vorstellungen[selection.dateIndex][selection.seat.ID] != null) {
+        var status = vorstellungen[selection.dateIndex][selection.seat.ID].status;
+    } else {
+        var status = "frei";
+    }
+
+    if (status === "reserviert" || status === "gebucht") {
+        document.getElementById("platzButtonAnwesend").disabled = true;
+        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+                vorstellungen[selection.dateIndex].time,
+                selection.seat.block,
+                selection.seat.reihe,
+                selection.seat.platz,
+                "anwesend",
+                displaySeatInformation,
+                vorgang.nummer);
+    } else if (status === "anwesend") {
+        document.getElementById("platzButtonAnwesend").disabled = true;
+        console.log(selection);
+        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+                vorstellungen[selection.dateIndex].time,
+                selection.seat.block,
+                selection.seat.reihe,
+                selection.seat.platz,
+                (vorgang.bezahlung == "gebucht" ? "gebucht" : "reserviert"),
+                displaySeatInformation,
+                vorgang.nummer);
+    }
 }
 
+/**
+ * Updates the information about this seat
+ */
+function onUpdateDataFinished() {
+    if (getSelectedSeat() != null)
+        displaySeatInformation();
+}
+
+/**
+ * whenever updateData detects changes, this function is triggered. This function must return, whether the status should be updated or not
+ * @param {Number} dateIndex
+ * @param {Object} platz
+ * @param {{date: String, time: String, block: String, reihe: String, platz: Number, status: String, vorgangsNr: Number}} neuerStatus
+ * @returns {Boolean}
+ */
+function onStatusUpdate(dateIndex, platz, neuerStatus) {
+    // Wenn ein Sitzplatz von extern (z.B. der Scanner App) als anwesend markiert wurde, wähle diesen aus.
+    if (neuerStatus.status === "anwesend") {
+        if (vorstellungen[dateIndex][platz.ID] == null || vorstellungen[dateIndex][platz.ID].status !== "anwesend") {
+            setSelectedSeat(dateIndex, platz);
+            displaySeatInformation();
+            
+            // Animation, dass ein neuer Platz ausgewählt wurde wurde
+            var platzUebersicht = document.getElementById("PlatzUebersicht");
+            var platzUebersichtClass = platzUebersicht.className;
+            platzUebersicht.className = platzUebersichtClass + " blueAnimation";
+            setTimeout(function() {
+                platzUebersicht.className = platzUebersichtClass;
+            }, 2100);
+        }
+    }
+    return true;
+}
+
+/**
+ * Show information about this seat.
+ * If this seat is attached to a Vorgang, also show information about this one.
+ */
 function displaySeatInformation() {
     var selection = getSelectedSeat();
     if (vorstellungen[selection.dateIndex][selection.seat.ID] != null) {
@@ -78,22 +163,43 @@ function displaySeatInformation() {
         var vorgangsNr = null;
     }
 
+    // Platz Übersicht anzeigen
     document.getElementById("platzBlock").innerHTML = selection.seat.block;
     document.getElementById("platzReihe").innerHTML = selection.seat.reihe;
     document.getElementById("platzPlatz").innerHTML = selection.seat.platz;
     document.getElementById("platzStatus").innerHTML = status;
 
-    var button = document.getElementById("platzButton");
-    var buttonText = button.childNodes[button.childNodes.length - 1];
-    if (status === "frei") {
-        button.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonText)
-        button.disabled = false;
-    } else if (status === "gesperrt") {
-        button.replaceChild(document.createTextNode("Sperrung dieses Platzes löschen"), buttonText)
-        button.disabled = false;
-    } else {
-        button.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonText)
-        button.disabled = true;
+    // Button für Statusänderung
+    var buttonGesperrt = document.getElementById("platzButtonGesperrt");
+    var buttonGesperrtText = buttonGesperrt.childNodes[buttonGesperrt.childNodes.length - 1];
+    var buttonAnwesend = document.getElementById("platzButtonAnwesend");
+    var buttonAnwesendText = buttonAnwesend.childNodes[buttonAnwesend.childNodes.length - 1];
+    switch (status) {
+        case "frei":
+            buttonGesperrt.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonGesperrtText);
+            buttonGesperrt.disabled = false;
+            buttonGesperrt.style.display = "inline-block";
+            buttonAnwesend.style.display = "none";
+            break;
+        case "gesperrt":
+            buttonGesperrt.replaceChild(document.createTextNode("Sperrung dieses Platzes löschen"), buttonGesperrtText);
+            buttonGesperrt.disabled = false;
+            buttonGesperrt.style.display = "inline-block";
+            buttonAnwesend.style.display = "none";
+            break;
+        case "reserviert":
+        case "gebucht":
+            buttonGesperrt.style.display = "none";
+            buttonAnwesend.replaceChild(document.createTextNode("Platz als anwesend markieren"), buttonAnwesendText);
+            buttonAnwesend.disabled = false;
+            buttonAnwesend.style.display = "inline-block";
+            break;
+        case "anwesend":
+            buttonGesperrt.style.display = "none";
+            buttonAnwesend.replaceChild(document.createTextNode("Platz nicht mehr als anwesend markieren"), buttonAnwesendText);
+            buttonAnwesend.disabled = false;
+            buttonAnwesend.style.display = "inline-block";
+            break;
     }
 
     // Vorgang laden und anzeigen
@@ -129,10 +235,14 @@ function displaySeatInformation() {
     }
 }
 
-
+/**
+ * Returns the URL for making a new Vorgang.
+ * The URL depends on whether a seat is actually selected
+ * @returns {String}
+ */
 function urlFuerNeuenVorgang() {
     var selection = getSelectedSeat();
-    var url = "vorgang.html";
+    var url = urlForVorgangPage;
     if (selection) {
         url += "?date=" + vorstellungen[selection.dateIndex].date;
         url += "&time=" + vorstellungen[selection.dateIndex].time;
@@ -146,8 +256,11 @@ function urlFuerNeuenVorgang() {
     return url;
 }
 
+/**
+ * Returns the URL vor editing the Vorgang of the selected seat.
+ */
 function urlFuerDiesenVorgang() {
-    var url = "vorgang.html";
+    var url = urlForVorgangPage;
     url += "?nummer=" + vorgang.nummer;
     return url;
 }

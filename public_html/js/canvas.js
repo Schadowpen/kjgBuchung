@@ -14,6 +14,8 @@
 // globals from mainPageUI.js
 /* global selectedDateIndex, onSeatClicked, imagesUrl */
 
+// Here are seat Images in different colors. Each variable is an Image Object with Image Data.
+// It might happen that the Image Data is not loaded even after initialization.
 var seatGray;
 var seatGrayHighlighted;
 var seatGraySelected;
@@ -30,9 +32,17 @@ var seatGreen;
 var seatGreenHighlighted;
 var seatGreenSelected;
 var seatGreenHighlightedSelected;
+var seatBlue;
+var seatBlueHighlighted;
+var seatBlueSelected;
+var seatBlueHighlightedSelected;
 
+/**
+ * Function to load all resources (mostly images) for the Canvas.
+ * Called from data.js after website is loaded.
+ */
 function loadCanvas() {
-    objectsToLoad += 16;
+    objectsToLoad += 20;
 
     // load seatGray
     seatGray = new Image();
@@ -113,25 +123,70 @@ function loadCanvas() {
     seatGreenHighlightedSelected = new Image();
     seatGreenHighlightedSelected.onload = loadingComplete();
     seatGreenHighlightedSelected.src = imagesUrl + "seat_green_highlighted_selected.png";
+
+    // load seatBlue
+    seatBlue = new Image();
+    seatBlue.onload = loadingComplete();
+    seatBlue.src = imagesUrl + "seat_blue.png";
+
+    // load seatBlueHighlighted
+    seatBlueHighlighted = new Image();
+    seatBlueHighlighted.onload = loadingComplete();
+    seatBlueHighlighted.src = imagesUrl + "seat_blue_highlighted.png";
+
+    // load seatBlueSelected
+    seatBlueSelected = new Image();
+    seatBlueSelected.onload = loadingComplete();
+    seatBlueSelected.src = imagesUrl + "seat_blue_selected.png";
+
+    // load seatBlueHighlightedSelected
+    seatBlueHighlightedSelected = new Image();
+    seatBlueHighlightedSelected.onload = loadingComplete();
+    seatBlueHighlightedSelected.src = imagesUrl + "seat_blue_highlighted_selected.png";
 }
 
 
+/**
+ * The Canvas where the seating plan shall be drawn. 
+ * @type Canvas
+ */
 var canvas;
+/**
+ * Rendering Context of canvas, used for drawing
+ * @type CanvasRenderingContext2D
+ */
 var ctx;
 
+/**
+ * Position of the mouse in the canvas
+ * @type |x,y
+ */
 var mousePos = {"x": 0, "y": 0};
+/**
+ * Seat over which the mouse is currently hovering.
+ * @type Seat
+ */
 var seatMouseOver = null;
 
+/**
+ * Ratio between the resolution of the canvas in pixels and the resolution the content is rendered
+ * @type Number
+ */
 var supersampling = 2; // supersampling beeinflusst die Rechenzeit nur geringfügig
+/**
+ * Function which draws the canvas' content
+ */
 function draw() {
     if (ctx) {
+        // Initializing as empty canvas
         canvas.width = canvas.offsetWidth * supersampling;
         canvas.height = canvas.offsetHeight * supersampling;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
 
+        // Calculating used variables
         var scaleFactor = canvas.width / sitzplan.raumBreite;
-        ctx.font = (16.0 * supersampling) + "px Times New Roman";
+        ctx.font = Math.floor(16.0 * supersampling) + "px Times New Roman";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
@@ -190,6 +245,15 @@ function draw() {
     }
 }
 
+/**
+ * Draws a Seat at the given Position.
+ * This function selects the seat color itself. Translation and rotation should be done before
+ * @param {Seat} seat Seat to be drawn
+ * @param {Number} x X-Position of the upper left corner in Pixels
+ * @param {Number} y Y-Position of the upper left corner in Pixels
+ * @param {Number} w Width of the Seat image in Pixels
+ * @param {Number} h Height of the Seat image in Pixels
+ */
 function drawSeat(seat, x, y, w, h) {
     if (vorstellungen[selectedDateIndex][seat.ID]) {
         switch (vorstellungen[selectedDateIndex][seat.ID].status) {
@@ -232,6 +296,19 @@ function drawSeat(seat, x, y, w, h) {
                         ctx.drawImage(seatGreen, x, y, w, h);
                 }
                 break;
+            case "anwesend":
+                if (seat === seatMouseOver) {
+                    if (isSelectedSeat(selectedDateIndex, seat))
+                        ctx.drawImage(seatBlueHighlightedSelected, x, y, w, h);
+                    else
+                        ctx.drawImage(seatBlueHighlighted, x, y, w, h);
+                } else {
+                    if (isSelectedSeat(selectedDateIndex, seat))
+                        ctx.drawImage(seatBlueSelected, x, y, w, h);
+                    else
+                        ctx.drawImage(seatBlue, x, y, w, h);
+                }
+                break;
             case "gesperrt":
                 if (seat === seatMouseOver) {
                     if (isSelectedSeat(selectedDateIndex, seat))
@@ -261,12 +338,15 @@ function drawSeat(seat, x, y, w, h) {
     }
 }
 
+/**
+ * Initializes the canvas and draws its content the first time.
+ * Will be called from data.js after all data is loaded.
+ */
 function initCanvas() {
     canvas = document.getElementById('canvas');
     // check for browser support
     if (canvas && canvas.getContext) {
-        canvasAspectRatio = sitzplan.raumLaenge / sitzplan.raumBreite;
-        canvas.style.height = canvas.offsetWidth * canvasAspectRatio + "px";
+        canvas.style.height = canvas.offsetWidth * (sitzplan.raumLaenge / sitzplan.raumBreite) + "px";
         canvas.addEventListener("click", onMouseClick);
         canvas.addEventListener("mousemove", onMouseMove);
 
@@ -279,23 +359,39 @@ function initCanvas() {
     }
 }
 
-var canvasAspectRatio;
+/**
+ * This function resizes the canvas every time the window is resized to match the canvas size to the room size.
+ * @type function
+ */
 window.addEventListener("resize", function () {
     // Groesse der Ansicht
     if (canvas) {
-        canvas.style.height = canvas.offsetWidth * canvasAspectRatio + "px";
+        canvas.style.height = canvas.offsetWidth * (sitzplan.raumLaenge / sitzplan.raumBreite) + "px";
         draw();
     }
 });
 
 // Default every Seat can be selected
-var clickableSeats = [undefined, "frei", "gebucht", "reserviert", "gesperrt"];
+/**
+ * Array of seats and/or seat status that are allowed to click onto.
+ * @type Array
+ */
+var clickableSeats = [undefined, "frei", "gebucht", "reserviert", "anwesend", "gesperrt"];
 
+/**
+ * Sets the clickableSeats to the given array. Then checks if the seat the mouse is over is still clickable.
+ * @param {Array} cS Array of seats and/or seat status that are allowed to click onto.
+ */
 function setClickableSeats(cS) {
     clickableSeats = cS;
     getSeatMouseOver();
 }
 
+/**
+ * Returns if this seat is clickable. See also clickableSeats.
+ * @param {Seat} seatStatus
+ * @returns {boolean}
+ */
 function isClickable(seatStatus) {
     return clickableSeats.indexOf(seatStatus) !== -1
             || (seatStatus != null && clickableSeats.indexOf(seatStatus.status) !== -1);

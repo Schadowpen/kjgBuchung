@@ -3,20 +3,47 @@
 /**
  * This scipt provides loading, accessing and editing of background data
  * 
- * It also loads and inits the canvas and calls loadUI() and initUI().
+ * It also loads and inits the canvas and calls loadUI(), initUI() and initCanvas().
  */
 
 // loaded content
+/**
+ * Number of objects to initially load
+ * @type Number
+ */
 var objectsToLoad = 2;
+/**
+ * Number of objects that have been loaded. If equal to objectsToLoad, then everything is initially loaded, if less then some loadings are pending
+ * @type Number
+ */
 var objectsLoaded = 0;
+/**
+ * If any update (Server request) is currently working. Good if only one Server request should be active at a time
+ * @type Boolean
+ */
 var updating = false;
 
+/**
+ * Loaded from getSitzplan.php
+ * @type Object
+ */
 var sitzplan = null;
+/**
+ * Loaded from getVorstellungenWithStatus.php
+ * @type Array
+ */
 var vorstellungen = null;
-var vorgang = null; // loaded during execution
+/**
+ * Loaded Vorgang (if any is loaded)
+ * @type Object|null
+ */
+var vorgang = null;
 
 
-// loading
+// -------------------
+// | initial loading |
+// -------------------
+
 window.addEventListener('load', function () {
     showLoading(0);
 
@@ -34,10 +61,11 @@ window.addEventListener('load', function () {
         alert("XMLHttpRequest wird von ihrem Browser nicht unterstützt.");
     }
     if (xmlHttp1) {
-        var key = getKey();
         xmlHttp1.open('GET', apiUrl + "getSitzplan.php", true);
         xmlHttp1.onreadystatechange = function () {
             if (xmlHttp1.readyState === 4) {
+                if (xmlHttp1.status !== 200)
+                    throw "Could not connect to Server. Server sent status code " + xmlHttp1.status;
                 if (xmlHttp1.responseText.startsWith("Error:"))
                     throw xmlHttp1.responseText;
 
@@ -62,6 +90,8 @@ window.addEventListener('load', function () {
         xmlHttp2.open('GET', apiUrl + "getVorstellungenWithStatus.php" + "?key=" + getKey(), true);
         xmlHttp2.onreadystatechange = function () {
             if (xmlHttp2.readyState === 4) {
+                if (xmlHttp2.status !== 200)
+                    throw "Could not connect to Server. Server sent status code " + xmlHttp2.status;
                 if (xmlHttp2.responseText.startsWith("Error:"))
                     throw xmlHttp2.responseText;
 
@@ -77,6 +107,10 @@ window.addEventListener('load', function () {
     }
 });
 
+/**
+ * Function to call whenever some resource for initial loading is completed.
+ * When everything is loaded, it will init Everything.
+ */
 function loadingComplete() {
     objectsLoaded++;
     if (objectsLoaded === objectsToLoad) {
@@ -90,6 +124,10 @@ function loadingComplete() {
     }
 }
 
+/**
+ * If a Canvas with the ID "canvas" is present, this function shows a loading screen inside the canvas.
+ * @param {number} percentage
+ */
 function showLoading(percentage) {
     var canvas = document.getElementById('canvas');
     if (canvas && canvas.getContext) {
@@ -114,7 +152,12 @@ function showLoading(percentage) {
     }
 }
 
-
+/**
+ * !CALL THIS FUNCTION ONCE, IT THEN STARTS TO CALL ITSELF!
+ * 
+ * This function updates every 10 seconds the platzStatusse.
+ * If an Entry is changed, maybe because multiple Users editing the same Data, it tries to call onStatusUpdate(number, platz, platzStatus)
+ */
 function updateData() {
     // check if someone other is updating something.
     if (updating) {
@@ -185,7 +228,22 @@ function updateData() {
     xmlHttp.send(null);
 }
 
-// editing
+// -----------
+// | editing |
+// -----------
+
+/**
+ * Sets the Platz Status on the server
+ * @param {string} date
+ * @param {string} time
+ * @param {string} block
+ * @param {string} reihe
+ * @param {number} platz
+ * @param {string} status
+ * @param {function|null} returnFunc
+ * @param {number|null} vorgangsNr
+ * @returns {undefined}
+ */
 function setzePlatzStatus(date, time, block, reihe, platz, status, returnFunc, vorgangsNr) {
     // check if someone other is updating something.
     if (updating) {
@@ -200,7 +258,7 @@ function setzePlatzStatus(date, time, block, reihe, platz, status, returnFunc, v
     xmlHttp.open('POST', apiUrl + "setPlatzStatus.php" + "?key=" + getKey(), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
-            if (xmlHttp.responseText.startsWith("Error:")) {
+            if (xmlHttp.responseText.startsWith("Error:") || xmlHttp.status !== 200) {
                 window.alert("Platz Status konnte nicht verändert werden\n\n" + xmlHttp.responseText);
                 if (typeof returnFunc === "function")
                     returnFunc(false);
@@ -246,6 +304,12 @@ function setzePlatzStatus(date, time, block, reihe, platz, status, returnFunc, v
     xmlHttp.send(JSON.stringify(sendStatus));
 }
 
+/**
+ * Loads a Vorgang for the given vorgangsNr.
+ * If the vorgangsNr is < 0, an empty Vorgang is created
+ * @param {number} vorgangsNr
+ * @param {function} returnFunc
+ */
 function ladeVorgang(vorgangsNr, returnFunc) {
     if (vorgangsNr == null) {
         vorgang = null;
@@ -275,8 +339,13 @@ function ladeVorgang(vorgangsNr, returnFunc) {
     xmlHttp.open('GET', apiUrl + "getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr, true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
-
-            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+            if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
+                vorgang = null;
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+                return;
+            }
+            
                 vorgang = JSON.parse(xmlHttp.responseText);
                 var readyFunc = function () {
                     if (sitzplan == null || vorstellungen == null) {
@@ -288,17 +357,15 @@ function ladeVorgang(vorgangsNr, returnFunc) {
                     }
                 };
                 readyFunc();
-            } else {
-                // TODO better error recurrection
-                vorgang = null;
-                if (typeof returnFunc === "function")
-                    returnFunc(false);
-            }
         }
     };
     xmlHttp.send(null);
 }
 
+/**
+ * saves a Vorgang on the Server.
+ * @param {function} returnFunc
+ */
 function speichereVorgang(returnFunc) {
     // check if someone other is updating something.
     if (updating) {
@@ -313,16 +380,16 @@ function speichereVorgang(returnFunc) {
     xmlHttp.open('POST', apiUrl + "setVorgang.php" + "?key=" + getKey(), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
-
-            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+            if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
+                window.alert("Vorgang konnte nicht gespeichert werden!\n\n" + xmlHttp.responseText);
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+                
+            } else {
                 vorgang = JSON.parse(xmlHttp.responseText);
                 berechneVorgangZugehoerigePlaetze();
                 if (typeof returnFunc === "function")
                     returnFunc(true);
-            } else {
-                window.alert("Vorgang konnte nicht gespeichert werden!\n\n" + xmlHttp.responseText);
-                if (typeof returnFunc === "function")
-                    returnFunc(false);
             }
             updating = false;
         }
@@ -331,6 +398,10 @@ function speichereVorgang(returnFunc) {
     xmlHttp.send(stringified);
 }
 
+/**
+ * Calculates which places belong to the Vorgang and sets vorgang.plaetze accordingly.
+ * @see berechneVorgangGesamtpreis()
+ */
 function berechneVorgangZugehoerigePlaetze() {
     vorgang.anzahlPlaetze = 0;
     vorgang.plaetze = [];
@@ -353,6 +424,9 @@ function berechneVorgangZugehoerigePlaetze() {
     berechneVorgangGesamtpreis();
 }
 
+/**
+ * Calculates the prize for the vorgang
+ */
 function berechneVorgangGesamtpreis() {
     vorgang.gesamtpreis = (vorgang.bezahlart === "VIP" || vorgang.bezahlart === "TripleA") ? 0 : vorgang.anzahlPlaetze * (vorgang.preis ? vorgang.preis : sitzplan.kartenPreis);
     if (vorgang.versandart === "Post") {
@@ -360,6 +434,10 @@ function berechneVorgangGesamtpreis() {
     }
 }
 
+/**
+ * Generates a theater ticket on the Server for the vorgang, but only if there is none.
+ * @param {function} returnFunc
+ */
 function erstelleVorgangTheaterkarte(returnFunc) {
     // Überprüfe ob Theaterkarte bereits erstellt wurde
     if (vorgang.theaterkarte != null) {
@@ -381,16 +459,16 @@ function erstelleVorgangTheaterkarte(returnFunc) {
     xmlHttp.open('GET', apiUrl + "generateTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
-
-            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+            if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
+                window.alert("Theaterkarte konnte nicht erzeugt werden!\n\n" + xmlHttp.responseText);
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+                
+            } else {
                 vorgang = JSON.parse(xmlHttp.responseText);
                 berechneVorgangZugehoerigePlaetze();
                 if (typeof returnFunc === "function")
                     returnFunc(true);
-            } else {
-                window.alert("Theaterkarte konnte nicht erzeugt werden!\n\n" + xmlHttp.responseText);
-                if (typeof returnFunc === "function")
-                    returnFunc(false);
             }
             updating = false;
         }
@@ -398,6 +476,10 @@ function erstelleVorgangTheaterkarte(returnFunc) {
     xmlHttp.send(null);
 }
 
+/**
+ * Deletes the theater ticket for the vorgang on the Server
+ * @param {function} returnFunc
+ */
 function loescheVorgangTheaterkarte(returnFunc) {
     // check if someone other is updating something.
     if (updating) {
@@ -413,15 +495,16 @@ function loescheVorgangTheaterkarte(returnFunc) {
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
 
-            if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
+            if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
+                window.alert("Theaterkarte konnte nicht geloescht werden!\n\n" + xmlHttp.responseText);
+                if (typeof returnFunc === "function")
+                    returnFunc(false);
+                
+            } else {
                 vorgang = JSON.parse(xmlHttp.responseText);
                 berechneVorgangZugehoerigePlaetze();
                 if (typeof returnFunc === "function")
                     returnFunc(true);
-            } else {
-                window.alert("Theaterkarte konnte nicht geloescht werden!\n\n" + xmlHttp.responseText);
-                if (typeof returnFunc === "function")
-                    returnFunc(false);
             }
             updating = false;
         }
@@ -430,9 +513,21 @@ function loescheVorgangTheaterkarte(returnFunc) {
 }
 
 
-// selection
+// -------------
+// | selection |
+// -------------
+
+/**
+ * Array with all Seats that shall be selected
+ * @type [{dateIndex: number, seat: object}]
+ */
 var selectedSeats = [];
 
+/**
+ * Selects a seat if not selected and otherwise
+ * @param {number} dateIndex
+ * @param {object} seat
+ */
 function antiselectSeat(dateIndex, seat) {
     var newElement = {
         "dateIndex": (dateIndex),
@@ -451,6 +546,12 @@ function antiselectSeat(dateIndex, seat) {
     }
 }
 
+/**
+ * Checks if a seat is selected
+ * @param {number} dateIndex
+ * @param {object} seat
+ * @returns {Boolean}
+ */
 function isSelectedSeat(dateIndex, seat) {
     for (var i = 0; i < selectedSeats.length; i++) {
         if (selectedSeats[i].dateIndex === dateIndex && selectedSeats[i].seat == seat)
@@ -459,6 +560,11 @@ function isSelectedSeat(dateIndex, seat) {
     return false;
 }
 
+/**
+ * Selects a seat
+ * @param {number} dateIndex
+ * @param {object} seat
+ */
 function selectSeat(dateIndex, seat) {
     var newElement = {
         "dateIndex": (dateIndex),
@@ -475,6 +581,11 @@ function selectSeat(dateIndex, seat) {
     }
 }
 
+/**
+ * Deselects a seat
+ * @param {number} dateIndex
+ * @param {object} seat
+ */
 function deselectSeat(dateIndex, seat) {
     var newElement = {
         "dateIndex": (dateIndex),
@@ -491,6 +602,11 @@ function deselectSeat(dateIndex, seat) {
     }
 }
 
+/**
+ * Sets the given Seat as the only selected seat in the plan
+ * @param {number} dateIndex
+ * @param {object} seat
+ */
 function setSelectedSeat(dateIndex, seat) {
     selectedSeats = [{
             "dateIndex": (dateIndex),
@@ -498,10 +614,17 @@ function setSelectedSeat(dateIndex, seat) {
         }];
 }
 
+/**
+ * Returns the selected seat, only usable if only one is selected
+ * @returns {{dateIndex: number, seat: object}}
+ */
 function getSelectedSeat() {
     return selectedSeats[0];
 }
 
+/**
+ * sorts the selected Seats by date-block-reihe-platz
+ */
 function sortSelectedSeats() {
     selectedSeats.sort(function (a, b) {
         var ret = a.dateIndex - b.dateIndex;

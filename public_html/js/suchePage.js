@@ -1,15 +1,32 @@
 /* global apiUrl */
 
+/**
+ * Allgemeine Informationen über die Veranstaltung
+ * @type {veranstaltung: string, raumLaenge: number, raumBreite: number, laengenEinheit: LE, sitzLaenge: number, sitzBreite: number, kartenPreis: number, versandPreis: number}
+ */
 var veranstaltung;
+/**
+ * Alle Vorstellungen dieser Veranstaltung
+ * @type {date: string, time: string}[]
+ */
 var vorstellungen;
+/**
+ * Alle Vorgänge zu dieser Veranstaltung
+ * @type {nummer: number, preis: number, bezahlart: string, bezahlung: string, versandart: string, vorname: string, nachname: string, email: string, telefon: string, anschrift: string, kommentar: string, theaterkarte: ?string, anzahlPlaetze: number, vorstellungen: {date: string, time: string}[]}[]
+ */
 var vorgaenge;
 
+/**
+ * Geht alle Vorgaenge durch und setzt diese auf sichtbar / nicht sichtbar, je nach Sucheinstellung
+ */
 function onSearchChanged() {
+    // Suchkriterien
     var nummer = document.getElementById("vorgangNummer").value;
     var vorname = document.getElementById("vorgangVorname").value;
     var nachname = document.getElementById("vorgangNachname").value;
     var vorstellungNr = document.getElementById("vorgangVorstellung").options.selectedIndex;
 
+    // Vorgangsnummer eingegeben -> Ein einziger Vorgang mit dieser Nummer
     if (nummer && nummer > 0) {
         for (var i = 0; i < vorgaenge.length; i++) {
             if (vorgaenge[i].nummer == nummer)
@@ -18,6 +35,7 @@ function onSearchChanged() {
                 vorgaenge[i].domElement.style.display = "none";
         }
 
+    // Keine Vorstellung angegeben, suche nur nach Vorname und Nachname
     } else if (vorstellungNr === 0) {
         for (var i = 0; i < vorgaenge.length; i++) {
             if (vorgaenge[i].vorname.toLowerCase().indexOf(vorname.toLowerCase()) !== -1 && vorgaenge[i].nachname.toLowerCase().indexOf(nachname.toLowerCase()) !== -1)
@@ -26,6 +44,7 @@ function onSearchChanged() {
                 vorgaenge[i].domElement.style.display = "none";
         }
 
+    // suche nach Vorname, nachname und Veranstaltung
     } else {
         var vorstellung = vorstellungen[vorstellungNr - 1];
         for (var i = 0; i < vorgaenge.length; i++) {
@@ -42,7 +61,9 @@ function onSearchChanged() {
     }
 }
 
-// Loading and adding to DOM
+/**
+ * Lädt alle benötigten Daten für die Suche und fügt sie ins DOM ein
+ */
 window.addEventListener("load", function () {
     // load vorstellungen
     var xmlHttp1;
@@ -115,6 +136,11 @@ window.addEventListener("load", function () {
     }
 });
 
+/**
+ * Fügt Daten zu einem Vorgang ins DOM ein
+ * @param {DOMElement} liste
+ * @param {Object} vorgang
+ */
 function addVorgang(liste, vorgang) {
     var div = document.createElement("div");
     div.className = "vorgang";

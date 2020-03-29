@@ -1,9 +1,25 @@
 /* global vorstellungen, getSelectedSeat, vorgang, objectsToLoad, selectedSeats, sitzplan, apiSchluessel, apiUrl, htmlFilesUrl */
 
+/**
+ * Index der im HTML-select ausgewählten Vorstellung
+ * @type Number
+ */
 var selectedDateIndex = 0;
+/**
+ * Ob es zu diesem Vorgang Änderungen gibt, die noch nicht auf dem Server gespeichert sind
+ * @type Boolean
+ */
 var vorgangUnsavedChanges = false;
+/**
+ * Wenn dieser Vorgang bereits eine Theaterkarte hat, ob eine Änderungen der Theaterkarte erlaubt sein sollen.
+ * Hintergrund: Wenn der Kunde seine Theaterkarte bereits besitzt, dann aber noch Änderungen gemacht werden, sind die nicht beim Kunden
+ * @type Boolean
+ */
 var theaterkarteUpdateAllowed = false;
 
+/**
+ * Lädt zusätzlich zu den Daten in data.js noch den Vorgang, der bearbeitet werden soll
+ */
 function loadUI() {
     objectsToLoad += 1;
 
@@ -30,6 +46,9 @@ function loadUI() {
     }
 }
 
+/**
+ * Aufgerufen von data.js, nachdem alle Daten geladen wurden
+ */
 function initUI() {
     var dateSelector = document.getElementById("date");
     for (var i = 0; i < vorstellungen.length; i++) {
@@ -93,6 +112,9 @@ function disableEintrittskartenUI(disabled) {
     document.getElementById("kartenDrucken").disabled = disabled || blockedByCORSPolicy;
 }
 
+/**
+ * Zeigt den Sitzplan für die aktuell ausgewählte Veranstaltung an
+ */
 function onDateChanged() {
     var dateSelector = document.getElementById("date");
     var dateNumber = dateSelector.options.selectedIndex;
@@ -102,6 +124,11 @@ function onDateChanged() {
     }
 }
 
+/**
+ * Freie Plätze werden zu dem Vorgang hinzugefügt, zugehörige Plätze entfernt.
+ * Plätze, die zu anderen Vorgängen gehören oder gesperrt sind, sind bereits über clickableSeats aussortiert
+ * @param {{dateIndex: Number, seat: Object}} clickedSeat
+ */
 function onSeatClicked(clickedSeat) {
     // Bereits gespeicherte Vorgang
     if (vorgang.nummer >= 0) {
@@ -151,7 +178,15 @@ function onSeatClicked(clickedSeat) {
     }
 }
 
-// whenever updateData detects changes, this function is triggered. This function must return, whether the status should be updated or not
+// 
+/**
+ * whenever updateData detects changes, this function is triggered. This function must return, whether the status should be updated or not.
+ * Diese Funktion fängt auch ab, wenn ein ausgewählter Sitzplatz parallel von jemand anderem gesperrt wurde.
+ * @param {Number} dateIndex
+ * @param {Object} platz
+ * @param {Object} neuerStatus
+ * @returns {Boolean}
+ */
 function onStatusUpdate(dateIndex, platz, neuerStatus) {
     if (vorstellungen[dateIndex][platz.ID] == null) {
         return true;
@@ -181,6 +216,9 @@ function onStatusUpdate(dateIndex, platz, neuerStatus) {
     }
 }
 
+/**
+ * Nach einem Update der auf dem Server gespeicherten PlatzStatusse wird die Anzeige neu berechnet
+ */
 function onUpdateDataFinished() {
     berechneVorgangZugehoerigePlaetze();
     selectedSeats = [];
@@ -191,6 +229,9 @@ function onUpdateDataFinished() {
 }
 
 // when something of Vorgang is edited
+/**
+ * Wenn der Vorgang bearbeitet wird, werden die Speichern- Drucken- und Theaterkarten-Buttons angepasst
+ */
 function onVorgangChanged() {
     disableEintrittskartenUI(true);
     document.getElementById("vorgangDrucken").disabled = true;
@@ -199,6 +240,9 @@ function onVorgangChanged() {
 }
 
 // calculates Changes that affect the whole Vorgang
+/**
+ * Berechnet Informationen, die sich aus Einzeldaten des Vorgangs ergeben, etwa den Gesamtpreis und wie er angezeigt wird
+ */
 function onVorgangCalculationChanged() {
     onVorgangChanged();
 
@@ -262,10 +306,14 @@ function onVorgangCalculationChanged() {
     displaySeatStatus();
 }
 
+/**
+ * Speichert den Vorgang, sofern möglich
+ */
 function onVorgangSave() {
-    // Check for Ticket regeneration
+    // Überprüfe, ob eine Theaterkarte existiert und ob sie aktualisiert werden darf
     if (vorgang.theaterkarte != null && !theaterkarteUpdateAllowed) {
         if (!window.confirm("Für diesen Vorgang wurden bereits Theaterkarten erstellt. Jegliche Änderungen würden diese Theaterkarten neu erstellen.\n\nTrotzdem fortfahren?")) {
+            // Wenn nicht erlaubt, lade nur den Vorgang nochmal neu, um die Änderungen zu überschreiben
             document.getElementById("vorgangSpeichern").disabled = true;
             document.getElementById("vorgangDrucken").disabled = true;
             document.getElementById("vorgangLoeschen").disabled = true;
@@ -358,6 +406,12 @@ function onVorgangSave() {
     });
 }
 
+/**
+ * Zeige Fehlernachricht unter einem DOMElement an
+ * @param {String} message
+ * @param {DOMElement} parent
+ * @param {Number} time Zeit in Millisekunden, die die Nachricht angezeigt werden soll
+ */
 function displayErrorMessage(message, parent, time) {
     var errorMsg = document.createElement("p");
     errorMsg.className = "error";
@@ -375,6 +429,10 @@ function displayErrorMessage(message, parent, time) {
     }, time);
 }
 
+/**
+ * Löscht den Vorgang. 
+ * Fragt aber vorher sicherheitshalber noch mal nach und überprüft, ob der Server es auch geschafft hat
+ */
 function onVorgangDelete() {
     if (vorgang.nummer < 0)
         return;
@@ -412,6 +470,10 @@ function onVorgangDelete() {
     xmlHttp.send(null);
 }
 
+/**
+ * Berechnet, welche Sitze angeklickt werden dürfen
+ * @param {Boolean} select wenn true werden die Sitzplätze, die zu dem Vorgang gehören, obendrein selected
+ */
 function adjustClickableSeats(select) {
     var clickableSeats = [undefined, "frei"];
     for (var i = 0; i < vorstellungen.length; i++) {
@@ -427,6 +489,9 @@ function adjustClickableSeats(select) {
     setClickableSeats(clickableSeats);
 }
 
+/**
+ * Zeigt alle ausgewählten Sitzplätze in der DOM-Tabelle an
+ */
 function displaySeatsInformation() {
     sortSelectedSeats();
     var dateIndex = -1;
@@ -462,6 +527,9 @@ function displaySeatsInformation() {
     }
 }
 
+/**
+ * Zeigt alle Informationen über den Vorgang an
+ */
 function displayVorgangInformation() {
     document.getElementById("vorgangNr").innerHTML = vorgang.nummer >= 0 ? vorgang.nummer : "Noch nicht gespeichert";
     document.getElementById("vorgangVorname").value = vorgang.vorname ? vorgang.vorname : "";
@@ -484,6 +552,9 @@ function displayVorgangInformation() {
     document.getElementById("vorgangKommentar").value = vorgang.kommentar ? vorgang.kommentar : "";
 }
 
+/**
+ * Setzt für alle Sitze, die zu dem Vorgang gehören, den Status auf "reserviert" oder "gebucht"
+ */
 function displaySeatStatus() {
     // reserviert/gebucht
     if (vorgang.bezahlung === "bezahlt") {
@@ -497,7 +568,9 @@ function displaySeatStatus() {
     draw();
 }
 
-
+/**
+ * Öffnet ein neues Fenster, von dem aus die Daten zu dem Vorgang gedruckt werden können
+ */
 function onVorgangDrucken() {
     var printWindow = window.open(htmlFilesUrl + 'printVorgang.html', 'to_print', 'height=600,width=800');
     printWindow.apiSchluessel = apiSchluessel;
@@ -507,6 +580,9 @@ function onVorgangDrucken() {
     });
 }
 
+/**
+ * Öffnet die Theaterkarten in einem neuen Tab
+ */
 function onKartenOeffnen() {
     disableEintrittskartenUI(true);
     erstelleVorgangTheaterkarte(function (success) {
@@ -520,6 +596,9 @@ function onKartenOeffnen() {
     });
 }
 
+/**
+ * Kopiert Link zur Theaterkarte in die Zwischenablage
+ */
 function onKartenLinkKopieren() {
     disableEintrittskartenUI(true);
     erstelleVorgangTheaterkarte(function (success) {
@@ -548,6 +627,10 @@ function onKartenLinkKopieren() {
     });
 }
 
+/**
+ * Lädt die Theaterkarte herunter und startet den Download über ein Blob-Objekt.
+ * Das wird vom Browser nur erlaubt, wenn geladene Webseite und Theaterkarten-URL übereinstimmen. Andernfalls wird die Theaterkarte in einem neuen Tab geöffnet
+ */
 function onKartenDownload() {
     disableEintrittskartenUI(true);
     erstelleVorgangTheaterkarte(function (success) {
@@ -563,24 +646,24 @@ function onKartenDownload() {
 
             var xmlHttp = new XMLHttpRequest();
             xmlHttp.open('GET', vorgang.theaterkarte, true);
-			xmlHttp.responseType = "arraybuffer";
+            xmlHttp.responseType = "arraybuffer";
             xmlHttp.onreadystatechange = function () {
                 if (xmlHttp.readyState === 4) {
-					var file = new Blob([xmlHttp.response], {type: "application/pdf"});
-					if (window.navigator.msSaveOrOpenBlob) // IE10+
-						window.navigator.msSaveOrOpenBlob(file, filename);
-					else { // Others
-						var a = document.createElement("a")
-						var url = URL.createObjectURL(file);
-						a.href = url;
-						a.download = filename;
-						document.body.appendChild(a);
-						a.click();
-						setTimeout(function () {
-							document.body.removeChild(a);
-							window.URL.revokeObjectURL(url);
-						}, 0);
-					}
+                    var file = new Blob([xmlHttp.response], {type: "application/pdf"});
+                    if (window.navigator.msSaveOrOpenBlob) // IE10+
+                        window.navigator.msSaveOrOpenBlob(file, filename);
+                    else { // Others
+                        var a = document.createElement("a")
+                        var url = URL.createObjectURL(file);
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function () {
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                        }, 0);
+                    }
                 }
             };
             xmlHttp.send(null);
@@ -591,6 +674,10 @@ function onKartenDownload() {
     });
 }
 
+/**
+ * Erstellt intern ein iFrame, über welches dann das Ausdrucken gestartet wird.
+ * Das wird vom Browser nur erlaubt, wenn geladene Webseite und Theaterkarten-URL übereinstimmen. Andernfalls wird die Theaterkarte in einem neuen Tab geöffnet
+ */
 function onKartenDrucken() {
     disableEintrittskartenUI(true);
     erstelleVorgangTheaterkarte(function (success) {
@@ -602,6 +689,7 @@ function onKartenDrucken() {
             window.open(vorgang.theaterkarte);
 
         } else {
+            // Um ressourcen zu schonen, wird ein bereits erstelltes iFrame wiederverwendet
             var iframe = this._printIframe;
             if (!this._printIframe) {
                 iframe = this._printIframe = document.createElement('iframe');
@@ -609,13 +697,13 @@ function onKartenDrucken() {
                 iframe.style.display = 'none';
                 iframe.onload = function () {
                     setTimeout(function () {
-						try {
-                        iframe.focus();
-                        iframe.contentWindow.print();
-						} catch (error) {
-							window.alert("Direktes Drucken wird nicht unterstützt. Als Ausweichlösung werden die Theaterkarten in einem neuen Tab geöffnet!");
-							window.open(vorgang.theaterkarte);
-						}
+                        try {
+                            iframe.focus();
+                            iframe.contentWindow.print();
+                        } catch (error) {
+                            window.alert("Direktes Drucken wird nicht unterstützt. Als Ausweichlösung werden die Theaterkarten in einem neuen Tab geöffnet!");
+                            window.open(vorgang.theaterkarte);
+                        }
                     }, 1);
                 };
             }
@@ -627,6 +715,12 @@ function onKartenDrucken() {
     });
 }
 
+/**
+ * Wenn der Nutzer die Seite verlassen will, wird vorher überprüft, ob es ungespeicherte Änderungen gibt.
+ * Gibt es ungespeicherte Änderungen, wird der Browser dann darauf hinweisen
+ * @param {Object} event
+ * @returns {?String} Wenn etwas zurückgegeben wird, soll die Seite besser nicht verlassen werden. Der Textinhalt war früher relevant, ist mittlerweile aber egal, da Webbrowser ihren eigenen Text nutzen
+ */
 window.onbeforeunload = function (event) {
     if (vorgangUnsavedChanges) {
         displayErrorMessage("&uArr; Speichern nicht vergessen!", document.getElementById("vorgangSpeichern"), 5000);

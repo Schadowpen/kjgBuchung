@@ -37,7 +37,7 @@
         </noscript>
 
         <div id="userElements" >
-            <div class="uebersicht" >
+            <div id="PlatzUebersicht" class="uebersicht" >
                 <h3>Platz &Uuml;bersicht</h3>
                 <table>
                     <tr>
@@ -56,14 +56,15 @@
                         <td>Status:</td>
                         <td>
                             <span id="platzStatus"></span>
-                            <button id="platzButton" disabled onclick="onSperrenClick()" style="margin-left: 20px;"> <img src="images/locked.png" class="buttonImage"/> Platz als gesperrt markieren </button>
+                            <button id="platzButtonGesperrt" disabled onclick="onSperrenClick()" style="margin-left: 20px; display: inline-block"> <img src="images/locked.png" class="buttonImage"/> Platz als gesperrt markieren </button>
+                            <button id="platzButtonAnwesend" disabled onclick="onAnwesendClick()" style="margin-left: 20px; display: none">Platz als anwesend markieren</button>
                         </td>
                     </tr>
                 </table>
             </div>
 
 
-            <div class="uebersicht" >
+            <div id="vorgangUebersicht" class="uebersicht" >
                 <h3>Vorgang &Uuml;bersicht</h3>
                 <div id="keinVorgang" style="display: block">
                     kein zugeh&ouml;riger Vorgang <br/>
