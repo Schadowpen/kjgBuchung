@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Archiv</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/archivPage.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <link rel="stylesheet" type="text/css" href="css/archivPage.css" />
+        
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+            <a href="archiv.html">Archiv</a>
+        </header>
+        
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+        
+        <h1>Aktuell aktive Veranstaltung: <span id="activeProject">Loading...</span></h1>
+        <button id="sicherungskopieButton" onclick="onSicherungskopieClick()">Sicherungskopie erstellen</button>
+        <button id="archivierenButton" onclick="onArchivierenClick()">Archivieren</button>
+        
+        <h1>Im Archiv:</h1>
+        <table>
+            <thead>
+                <tr>
+                    <td>Veranstaltung:</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody id="archivTable">
+                <tr><td>Loading...</td></tr>
+            </tbody>
+        </table>
+        
+        <h1>Sicherungskopien:</h1>
+        <table>
+            <thead>
+                <tr>
+                    <td>Veranstaltung:</td>
+                    <td>Erstellt am:</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody id="securityCopyTable">
+                <tr><td>Loading...</td></tr>
+            </tbody>
+        </table>
+        
+        <br/>
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

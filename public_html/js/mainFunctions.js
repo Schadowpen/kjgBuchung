@@ -4,6 +4,7 @@ var apiUrl = "http://localhost:8000/";
 var imagesUrl = "images/";
 var htmlFilesUrl = "html/";
 var urlForVorgangPage = "vorgang.html"; //"https://kjg-theater.de/login/vorgang/";
+var urlForArchivAnsehenPage = "archivAnsehen.html";
 
 // Cross browser support
 if (!String.prototype.startsWith) {

@@ -1,4 +1,5 @@
-/* global apiUrl */
+/* global apiUrl, urlForVorgangPage */
+
 
 /**
  * Allgemeine Informationen über die Veranstaltung
@@ -77,6 +78,11 @@ window.addEventListener("load", function () {
         xmlHttp1.open('GET', apiUrl + "getVeranstaltung.php", true);
         xmlHttp1.onreadystatechange = function () {
             if (xmlHttp1.readyState === 4) {
+                if (xmlHttp1.status !== 200)
+                    throw "Could not connect to Server. Server sent status code " + xmlHttp1.status;
+                if (xmlHttp1.responseText.startsWith("Error:"))
+                    throw xmlHttp1.responseText;
+
                 veranstaltung = JSON.parse(xmlHttp1.responseText);
             }
         };
@@ -88,6 +94,11 @@ window.addEventListener("load", function () {
         xmlHttp2.open('GET', apiUrl + "getVorstellungen.php", true);
         xmlHttp2.onreadystatechange = function () {
             if (xmlHttp2.readyState === 4) {
+                if (xmlHttp2.status !== 200)
+                    throw "Could not connect to Server. Server sent status code " + xmlHttp2.status;
+                if (xmlHttp2.responseText.startsWith("Error:"))
+                    throw xmlHttp2.responseText;
+
                 vorstellungen = JSON.parse(xmlHttp2.responseText);
                 var vorgangVorstellung = document.getElementById("vorgangVorstellung");
                 for (var i = 0; i < vorstellungen.length; i++) {
@@ -106,6 +117,11 @@ window.addEventListener("load", function () {
         xmlHttp3.open('GET', apiUrl + "getVorgaengeWithInfo.php" + "?key="+getKey(), true);
         xmlHttp3.onreadystatechange = function () {
             if (xmlHttp3.readyState === 4) {
+                if (xmlHttp3.status !== 200)
+                    throw "Could not connect to Server. Server sent status code " + xmlHttp3.status;
+                if (xmlHttp3.responseText.startsWith("Error:"))
+                    throw xmlHttp3.responseText;
+
                 vorgaenge = JSON.parse(xmlHttp3.responseText);
 
                 // add all to DOM tree
@@ -145,7 +161,7 @@ function addVorgang(liste, vorgang) {
     var div = document.createElement("div");
     div.className = "vorgang";
     div.addEventListener("dblclick", function () {
-        location.href = "vorgang.html?nummer=" + vorgang.nummer;
+        location.href = urlForVorgangPage + "?nummer=" + vorgang.nummer;
     });
     vorgang.domElement = div;
     var table = document.createElement("table");

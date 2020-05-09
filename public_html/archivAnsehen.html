@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>kjg Buchung - Startseite</title>
+        <title>kjg Buchung - Archiv betrachten</title>
         <meta charset="UTF-8">
         <script src="js/forge-sha256.min.js"></script>
         <script src="js/mainFunctions.js"></script>
+        <script src="js/userElementsPlacer.js"></script>
         <script src="js/data.js"></script>
         <script src="js/canvas.js"></script>
-        <script src="js/mainPageUI.js"></script>
-        <script src="js/userElementsPlacer.js"></script>
+        <script src="js/archivAnsehenPageUI.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/archivAnsehenPage.css" />
         <link rel="stylesheet" type="text/css" href="css/main.css" />
-        <link rel="stylesheet" type="text/css" href="css/mainPage.css" />
 
         <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
     </head>
@@ -22,6 +22,8 @@
             <a href="uebersicht.html">&Uuml;bersicht</a>
             <a href="archiv.html">Archiv</a>
         </header>
+
+        <h1>Archiv von: <span id="veranstaltungsName">Loading...</span></h1>
 
         <div style="font-size: 150%;">
             Datum: <select style="font-size: 100%;" id="date" onchange="onDateChanged()" >
@@ -37,45 +39,14 @@
         </p>
         </noscript>
 
-        <div id="userElements" >
-            <div id="PlatzUebersicht" class="uebersicht" >
-                <h3>Platz &Uuml;bersicht</h3>
-                <table>
-                    <tr>
-                        <td>Block:</td>
-                        <td id="platzBlock"></td>
-                    </tr>
-                    <tr>
-                        <td>Reihe:</td>
-                        <td id="platzReihe"></td>
-                    </tr>
-                    <tr>
-                        <td>Platz:</td>
-                        <td id="platzPlatz"></td>
-                    </tr>
-                    <tr>
-                        <td>Status:</td>
-                        <td>
-                            <span id="platzStatus"></span>
-                            <button id="platzButtonGesperrt" disabled onclick="onSperrenClick()" style="margin-left: 20px; display: inline-block"> <img src="images/locked.png" class="buttonImage"/> Platz als gesperrt markieren </button>
-                            <button id="platzButtonAnwesend" disabled onclick="onAnwesendClick()" style="margin-left: 20px; display: none">Platz als anwesend markieren</button>
-                        </td>
-                    </tr>
-                </table>
-            </div>
 
+        <div id="userElements" >
 
             <div id="vorgangUebersicht" class="uebersicht" >
                 <h3>Vorgang &Uuml;bersicht</h3>
                 <div id="keinVorgang" style="display: block">
-                    kein zugeh&ouml;riger Vorgang <br/>
-                    <p style="display: flex;">
-                        <button id="vorgangErstellenButton1" onclick="location.href = urlFuerNeuenVorgang();"> <img src="images/plus.png" class="buttonImage"/> neuen Vorgang erstellen </button>
-                        <button id="vorgangErstellenButton2" onclick="window.open(urlFuerNeuenVorgang());"> <img src="images/newTab.png" class="buttonImage"/> in neuem Tab erstellen </button>
-                    </p>
+                    kein zugeh&ouml;riger Vorgang
                 </div>
-
-                <p id="vorgangLoading" style="display: none">Loading ...</p>
 
                 <div  id="vorgang" style="display: none">
                     <table>
@@ -123,22 +94,76 @@
                             <td>Kommentar:</td>
                             <td id="vorgangKommentar"></td>
                         </tr>
+                        <tr>
+                            <td>Vorstellungen:</td>
+                            <td id="vorgangVorstellungen"></td>
+                        </tr>
                     </table>
-                    <div style="display: flex;">
-                        <button onclick="location.href = urlFuerDiesenVorgang();"> <img src="images/edit.png" class="buttonImage"/> Vorgang bearbeiten </button>
-                        <button onclick="window.open(urlFuerDiesenVorgang());"> <img src="images/newTab.png" class="buttonImage"/> In neuem Tab bearbeiten </button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <h1>Buchungssystem für: <span id="veranstaltungsName">Loading...</span></h1>
+        <div id="sucheSurrounder" class="shrinkExpandArea">
+            <div class="expander_left" onclick="shrinkOrExpandArea('suche')"></div>
+            <div style="flex-grow: 1">
+                <h3>Suche:</h3>
+                <div class="shrinkExpandContent">
+
+                    <table class="sucheTable">
+                        <tr>
+                            <td>Nummer: <input type="number" id="sucheVorgangNummer" min="1"/></td>
+                            <td>Vorname: <input type="text" id="sucheVorgangVorname"/></td>
+                            <td>Nachname: <input type="text" id="sucheVorgangNachname" /></td>
+                            <td>Vorstellung: <select id="sucheVorgangVorstellung" > <option>alle</option> </select></td>
+                        </tr>
+                    </table>
+                    <br/>
+
+                    <div id="vorgangListe">
+                        Loading ...
+                        <!-- vorgaenge added via Javascript -->
+                    </div>
+                    Doppelklick zum anzeigen!
+
+                </div>
+                <div class="expander_bottom" onclick="shrinkOrExpandArea('suche')"></div>
+            </div>
+        </div>
+
+
+        <div id="uebersichtSurrounder" class="shrinkExpandArea">
+            <div class="expander_left" onclick="shrinkOrExpandArea('uebersicht')"></div>
+            <div style="flex-grow: 1">
+                <h3>&Uuml;bersicht:</h3>
+                <div class="shrinkExpandContent">
+
+                    <table class="uebersichtTable" style="">
+                        <thead>
+                            <tr>
+                                <th>Vorstellung</th>
+                                <th>Anzahl Pl&auml;tze</th>
+                                <th>davon frei</th>
+                                <th>davon reserviert</th>
+                                <th>davon gebucht</th>
+                                <th>davon VIP</th>
+                                <th>davon Triple A</th>
+                                <th>gesamte Einnahmen</th>
+                                <th>gezahlte Einnahmen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uebersichtGesamt"></tbody>
+                        <tbody id="uebersichtEinzel"></tbody>
+                    </table>
+
+                </div>
+                <div class="expander_bottom" onclick="shrinkOrExpandArea('uebersicht')"></div>
+            </div>
+        </div>
 
         <div>
             <input type="button" value="Fehler melden" onclick="reportError('');" />
         </div>
 
         <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
-
     </body>
 </html>

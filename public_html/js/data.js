@@ -8,6 +8,11 @@
 
 // loaded content
 /**
+ * Name of the archive Database, if given in URL Parameters.
+ * @type null|String
+ */
+var archiveDatabase = null;
+/**
  * Number of objects to initially load
  * @type Number
  */
@@ -46,6 +51,11 @@ var vorgang = null;
 
 window.addEventListener('load', function () {
     showLoading(0);
+    
+    // lade Target Archiv Datenbank
+    var queryString = document.location.search.substring(1);
+    var queryObj = parseQueryString(queryString);
+    archiveDatabase = queryObj.database;
 
     if (typeof loadCanvas === "function")
         loadCanvas();
@@ -61,7 +71,10 @@ window.addEventListener('load', function () {
         alert("XMLHttpRequest wird von ihrem Browser nicht unterstützt.");
     }
     if (xmlHttp1) {
-        xmlHttp1.open('GET', apiUrl + "getSitzplan.php", true);
+        if (archiveDatabase == null)
+            xmlHttp1.open('GET', apiUrl + "getSitzplan.php", true);
+        else
+            xmlHttp1.open('GET', apiUrl + "getSitzplan.php?archive=" + encodeURIComponent(archiveDatabase), true);
         xmlHttp1.onreadystatechange = function () {
             if (xmlHttp1.readyState === 4) {
                 if (xmlHttp1.status !== 200)
@@ -87,7 +100,11 @@ window.addEventListener('load', function () {
 
         // load bookings
         var xmlHttp2 = new XMLHttpRequest();
-        xmlHttp2.open('GET', apiUrl + "getVorstellungenWithStatus.php" + "?key=" + getKey(), true);
+        if (archiveDatabase == null)
+            xmlHttp2.open('GET', apiUrl + "getVorstellungenWithStatus.php" + "?key=" + getKey(), true);
+        else
+            xmlHttp2.open('GET', apiUrl + "getVorstellungenWithStatus.php?archive=" + encodeURIComponent(archiveDatabase) + "&key=" + getKey(), true);
+        
         xmlHttp2.onreadystatechange = function () {
             if (xmlHttp2.readyState === 4) {
                 if (xmlHttp2.status !== 200)
@@ -118,7 +135,8 @@ function loadingComplete() {
             initCanvas();
         if (typeof initUI === "function")
             initUI();
-        setTimeout(updateData, 10000);
+        if (archiveDatabase == null) // only update if not in archive
+            setTimeout(updateData, 10000);
     } else {
         showLoading(objectsLoaded / objectsToLoad);
     }
@@ -167,7 +185,10 @@ function updateData() {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', apiUrl + "getPlatzStatusse.php" + "?key=" + getKey(), true);
+    if (archiveDatabase == null)
+        xmlHttp.open('GET', apiUrl + "getPlatzStatusse.php" + "?key=" + getKey(), true);
+    else
+        xmlHttp.open('GET', apiUrl + "getPlatzStatusse.php" + "?key=" + getKey() + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.status === 200 && !xmlHttp.responseText.startsWith("Error:")) {
@@ -255,7 +276,10 @@ function setzePlatzStatus(date, time, block, reihe, platz, status, returnFunc, v
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('POST', apiUrl + "setPlatzStatus.php" + "?key=" + getKey(), true);
+    if (archiveDatabase == null)
+        xmlHttp.open('POST', apiUrl + "setPlatzStatus.php" + "?key=" + getKey(), true);
+    else
+        xmlHttp.open('POST', apiUrl + "setPlatzStatus.php" + "?key=" + getKey() + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.responseText.startsWith("Error:") || xmlHttp.status !== 200) {
@@ -336,7 +360,10 @@ function ladeVorgang(vorgangsNr, returnFunc) {
     }
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', apiUrl + "getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr, true);
+    if (archiveDatabase == null)
+        xmlHttp.open('GET', apiUrl + "getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr, true);
+    else
+        xmlHttp.open('GET', apiUrl + "getVorgang.php" + "?key=" + getKey() + "&nummer=" + vorgangsNr + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
@@ -377,7 +404,10 @@ function speichereVorgang(returnFunc) {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('POST', apiUrl + "setVorgang.php" + "?key=" + getKey(), true);
+    if (archiveDatabase == null)
+        xmlHttp.open('POST', apiUrl + "setVorgang.php" + "?key=" + getKey(), true);
+    else
+        xmlHttp.open('POST', apiUrl + "setVorgang.php" + "?key=" + getKey() + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
@@ -456,7 +486,10 @@ function erstelleVorgangTheaterkarte(returnFunc) {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', apiUrl + "generateTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    if (archiveDatabase == null)
+        xmlHttp.open('GET', apiUrl + "generateTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    else
+        xmlHttp.open('GET', apiUrl + "generateTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
             if (xmlHttp.status !== 200 || xmlHttp.responseText.startsWith("Error:")) {
@@ -491,7 +524,10 @@ function loescheVorgangTheaterkarte(returnFunc) {
     updating = true;
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open('GET', apiUrl + "deleteTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    if (archiveDatabase == null)
+        xmlHttp.open('GET', apiUrl + "deleteTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer, true);
+    else
+        xmlHttp.open('GET', apiUrl + "deleteTheaterkarte.php" + "?key=" + getKey() + "&nummer=" + vorgang.nummer + "&archive=" + encodeURIComponent(archiveDatabase), true);
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4) {
 

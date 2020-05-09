@@ -1,0 +1,21 @@
+
+table {
+    width: 100%;
+}
+table tr {
+    margin: 2px;
+}
+table tbody tr:hover {
+    margin: 0px;
+    background: lightgray;
+}
+table td, table td * {
+    vertical-align: top;
+    text-align: left;
+    padding-bottom: 5px;
+    white-space: nowrap;
+}
+
+table thead td {
+    font-weight: bold;
+}
