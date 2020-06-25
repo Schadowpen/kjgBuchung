@@ -5,6 +5,9 @@ var imagesUrl = "images/";
 var htmlFilesUrl = "html/";
 var urlForVorgangPage = "vorgang.html"; //"https://kjg-theater.de/login/vorgang/";
 var urlForArchivAnsehenPage = "archivAnsehen.html";
+var urlForVorlageBearbeitenPage = "vorlageBearbeiten.html";
+var urlForSitzplanBearbeitenPage = "sitzplanBearbeiten.html";
+var urlForKartenVorlageBearbeitenPage = "kartenConfigEditor.html";
 
 // Cross browser support
 if (!String.prototype.startsWith) {

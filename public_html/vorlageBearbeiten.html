@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Vorlage bearbeiten</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/templateData.js"></script>
+        <script src="js/templateCanvas.js"></script>
+        <script src="js/bezier.js"></script>
+        <script src="js/vorlageBearbeitenPage.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/vorlageBearbeitenPage.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+            <a href="archiv.html">Archiv</a>
+            <a href="template.html">Vorlagen</a>
+        </header>
+
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+        
+        <h1>Vorlage von: <span id="veranstaltungsName">Loading...</span></h1>
+        
+        Kartenpreis: <input type="number" min="0" step="0.01" id="kartenPreis" oninput="onKartenPreisInput()"/>&euro;<br/>
+        Versandpreis: <input type="number" min="0" step="0.01" id="versandPreis" oninput="onVersandPreisInput()"/>&euro;<br/>
+        
+        
+        <h1>Vorstellungen:</h1>
+        
+        <div id="vorstellungenDiv">
+            Loading ...
+        </div>
+        <table class="newVorstellungTable">
+            <tbody>
+                <tr>
+                    <td>Datum:</td>
+                    <td><input id="newVorstellungDate" type="date"/></td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>Uhrzeit:</td>
+                    <td><input id="newVorstellungTime" type="time"/></td>
+                    <td><button id="newVorstellungButton" onclick="newVorstellung()">Speichern</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        
+        <h1>Zusätzliche Datenfelder für Vorgang:</h1>
+        <table class="defaultFieldsForVorgangTable">
+            <thead>
+                <tr>
+                    <td>Beschreibung:</td>
+                    <td>Datentyp:</td>
+                    <td>Erforderlich:</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Nummer:</td>
+                    <td>Ganze Zahl</td>
+                    <td>Automatisch erzeugt</td>
+                </tr>
+                <tr>
+                    <td>Daten beim archivieren <br/> schwärzen / löschen:</td>
+                    <td>Ja/Nein-Wert</td>
+                    <td>Standardmäßig Nein-Wert</td>
+                </tr>
+                <tr>
+                    <td>Vorname:</td>
+                    <td>Text</td>
+                    <td>Ja</td>
+                </tr>
+                <tr>
+                    <td>Nachname:</td>
+                    <td>Text</td>
+                    <td>Ja</td>
+                </tr>
+                <tr>
+                    <td>E-Mail</td>
+                    <td>Text</td>
+                    <td>Entweder E-Mail oder Telefon</td>
+                </tr>
+                <tr>
+                    <td>Telefon:</td>
+                    <td>Text</td>
+                    <td>Entweder E-Mail oder Telefon</td>
+                </tr>
+                <tr>
+                    <td>Einzelpreis:</td>
+                    <td>Kommazahl (&euro;)</td>
+                    <td>Wenn nicht angegeben, Standardpreis</td>
+                </tr>
+                <tr>
+                    <td>Bezahlart:</td>
+                    <td>Mehrere Optionen</td>
+                    <td>Ja</td>
+                </tr>
+                <tr>
+                    <td>Bezahlt:</td>
+                    <td>Mehrere Optionen</td>
+                    <td>Ja</td>
+                </tr>
+                <tr>
+                    <td>Versandart:</td>
+                    <td>Mehrere Optionen</td>
+                    <td>Ja</td>
+                </tr>
+                <tr>
+                    <td>Anschrift</td>
+                    <td>Text</td>
+                    <td>Nur wenn Versandart "Post"</td>
+                </tr>
+                <tr>
+                    <td>Kommentar:</td>
+                    <td>Langer Text</td>
+                    <td>Nein</td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="additionalFieldsForVorgangDiv">
+            Loading ...
+        </div>
+        <table class="newAdditionalFieldsForVorgangTable">
+            <tbody>
+                <tr>
+                    <td>Beschreibung:</td>
+                    <td><input type="text" id="newAdditionalFieldForVorgangDescription"/></td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>Datentyp:</td>
+                    <td>
+                        <select id="newAdditionalFieldForVorgangType">
+                            <option value="integer">Ganze Zahl</option>
+                            <option value="float">Kommazahl</option>
+                            <option value="string">Text</option>
+                            <option value="longString">Langer Text</option>
+                            <option value="boolean">Ja/Nein-Wert</option>
+                        </select>
+                    </td>
+                    <td/>
+                </tr>
+                <tr>
+                    <td>Erforderlich:</td>
+                    <td><input type="checkbox" id="newAdditionalFieldForVorgangRequired"/></td>
+                    <td><button id="newAdditionalFieldForVorgangButton" onclick="newAdditionalFieldForVorgang()">Speichern</button></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h1>Sitzplan</h1>
+
+        <canvas id="canvas" style="width: 1000px; height: 700px; background-color: beige" > </canvas>
+        <br/>
+        <button onClick="onSitzplanBearbeitenClick()">Sitzplan bearbeiten</button>
+
+        
+        <h1>Demo Theaterkarte:</h1>
+
+        <iframe id="demoTheaterkarte" width="600" height="900"></iframe>
+        <br/>
+        <button onclick="onKartenVorlageBearbeitenClick()">Kartenvorlage bearbeiten</button>
+
+        
+        <form id="upload" action="http://localhost:8000/uploadKartenVorlage.php" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="kartenVorlage"><h1>Lade Theaterkarten Vorlage hoch:</h1></label><br/>
+                <input type="file" id="fileselect" name="kartenVorlage"/>
+                <div id="filedrag">Ziehe die PDF-Datei in dieses Feld</div>
+            </div>
+
+            <div id="submitbutton">
+                <input type="submit" value="Hochladen">
+            </div>
+        </form>
+        <div id="uploadSpinner" class="spinner" style="display: none;"></div>
+
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

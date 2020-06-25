@@ -28,7 +28,6 @@ function loadUI() {
         var vorgangsNr = query.nummer;
 
         ladeVorgang(vorgangsNr, function () {
-            displayVorgangInformation();
             loadingComplete();
             if (vorgang.bezahlung === "bezahlt" || vorgang.bezahlung === "Abendkasse")
                 disableEintrittskartenUI(false)
@@ -38,7 +37,6 @@ function loadUI() {
         var vorgangsNr = -1;
 
         ladeVorgang(vorgangsNr, function () {
-            displayVorgangInformation();
             vorgangUnsavedChanges = true;
             loadingComplete();
             document.getElementById("vorgangLoeschen").disabled = true;
@@ -57,6 +55,47 @@ function initUI() {
         dateSelector.options.add(opt);
     }
     dateSelector.options.selectedIndex = 0;
+
+    // init additional vorgang fields
+    if (sitzplan.additionalFieldsForVorgang != null) {
+        var vorgangTable = document.getElementById("vorgangTable");
+        for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+            var additionalField = sitzplan.additionalFieldsForVorgang[i];
+            var td1 = document.createElement("td");
+            td1.innerHTML = additionalField.description + ":";
+            var input;
+            switch (additionalField.type) {
+                case "integer":
+                    input = document.createElement("input");
+                    input.type = "number";
+                    input.step = 1;
+                    break;
+                case "float":
+                    input = document.createElement("input");
+                    input.type = "number";
+                    break;
+                case "string":
+                    input = document.createElement("input");
+                    input.type = "text";
+                    break;
+                case "longString":
+                    input = document.createElement("textarea");
+                    break;
+                case "boolean":
+                    input = document.createElement("input");
+                    input.type = "checkbox";
+                    break;
+            }
+            input.id = "vorgang" + additionalField.fieldName;
+            input.onclick = onVorgangChanged;
+            var td2 = document.createElement("td");
+            td2.appendChild(input);
+            var tr = document.createElement("tr");
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            vorgangTable.appendChild(tr);
+        }
+    }
 
     // get date from URL query
     var query = parseQueryString(window.location.search.substring(1));
@@ -93,6 +132,7 @@ function initUI() {
         }
     }
 
+    displayVorgangInformation();
     displaySeatsInformation();
     document.getElementById("vorgangSpeichern").disabled = vorgang.nummer >= 0;
     draw();
@@ -366,8 +406,37 @@ function onVorgangSave() {
         displayErrorMessage("&uArr; Bei Versendung per E-Mail muss die E-Mail Adresse ausgef&uuml;llt werden!", document.getElementById("vorgangEmail"), 4000);
         return;
     }
+    for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+        var additionalField = sitzplan.additionalFieldsForVorgang[i];
+        switch (additionalField.type) {
+            case "integer":
+                vorgang[additionalField.fieldName] = parseInt(document.getElementById("vorgang" + additionalField.fieldName).value);
+                if (isNaN(vorgang[additionalField.fieldName]))
+                    vorgang[additionalField.fieldName] = undefined;
+                break;
+            case "float":
+                vorgang[additionalField.fieldName] = parseFloat(document.getElementById("vorgang" + additionalField.fieldName).value);
+                if (isNaN(vorgang[additionalField.fieldName]))
+                    vorgang[additionalField.fieldName] = undefined;
+                break;
+            case "string":
+            case "longString":
+                vorgang[additionalField.fieldName] = document.getElementById("vorgang" + additionalField.fieldName).value;
+                if (vorgang[additionalField.fieldName] === "")
+                    vorgang[additionalField.fieldName] = undefined;
+                break;
+            case "boolean":
+                vorgang[additionalField.fieldName] = document.getElementById("vorgang" + additionalField.fieldName).checked;
+                break;
+        }
+        if (additionalField.required && vorgang[additionalField.fieldName] == null) {
+            displayErrorMessage("&uArr; Dieses Feld muss ausgef&uuml;llt werden!", document.getElementById("vorgang" + additionalField.fieldName), 4000);
+            return;
+        }
+    }
 
     // read missing Data
+    vorgang.blackDataInArchive = document.getElementById("vorgangBlackDataInArchive").checked;
     vorgang.preis = parseFloat(document.getElementById("vorgangPreis").value);
     vorgang.bezahlart = document.getElementById("vorgangBezahlart").value;
     vorgang.bezahlung = document.getElementById("vorgangBezahlung").value;
@@ -532,6 +601,7 @@ function displaySeatsInformation() {
  */
 function displayVorgangInformation() {
     document.getElementById("vorgangNr").innerHTML = vorgang.nummer >= 0 ? vorgang.nummer : "Noch nicht gespeichert";
+    document.getElementById("vorgangBlackDataInArchive").checked = vorgang.blackDataInArchive;
     document.getElementById("vorgangVorname").value = vorgang.vorname ? vorgang.vorname : "";
     document.getElementById("vorgangNachname").value = vorgang.nachname ? vorgang.nachname : "";
     document.getElementById("vorgangEmail").value = vorgang.email ? vorgang.email : "";
@@ -550,6 +620,20 @@ function displayVorgangInformation() {
     document.getElementById("vorgangVersand").value = vorgang.versandart ? vorgang.versandart : "Abholung";
     document.getElementById("vorgangAnschrift").value = vorgang.anschrift ? vorgang.anschrift : "";
     document.getElementById("vorgangKommentar").value = vorgang.kommentar ? vorgang.kommentar : "";
+    if (sitzplan.additionalFieldsForVorgang != null) {
+        for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+            var additionalField = sitzplan.additionalFieldsForVorgang[i];
+            var input = document.getElementById("vorgang" + additionalField.fieldName);
+            switch (additionalField.type) {
+                case "boolean":
+                    input.checked = vorgang[additionalField.fieldName];
+                    break;
+                default:
+                    input.value = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName] : "";
+                    break;
+            }
+        }
+    }
 }
 
 /**

@@ -1,0 +1,64 @@
+/* CSS für das Canvas*/
+div#tooltip {
+    border: 1px solid black;
+    background-color: white;
+    padding: 1px 3px;
+    position: absolute;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+}
+
+/* CSS für die Konfiguration */
+div.eingerueckt {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+div.einzelkonfiguration {
+    border: 1px solid gray;
+    background-color: white;
+    margin: 1px;
+    padding: 2px;
+    display: flex;
+    align-items: flex-start;
+    flex-grow: 1;
+}
+div.einzelkonfiguration:hover {
+    border-color: black;
+    background-color: #EEEEEE;
+}
+div.einzelkonfiguration.selected {
+    border-color: red;
+}
+
+div.einzelkonfiguration form {
+    flex-grow: 1;
+}
+
+div.expander_left {
+    width: 1em;
+    height: 1em;
+    background-image: url("http://localhost:8383/kjgBuchung/images/expander_plus.png");
+    -webkit-background-size: contain;
+    background-size: contain;
+    flex-grow: 0;
+    cursor: pointer;
+}
+div.expanded div.expander_left {
+    background-image: url("http://localhost:8383/kjgBuchung/images/expander_minus.png");
+}
+
+div.expander_bottom {
+    width: 100%;
+    height: 1em;
+    background-image: url("http://localhost:8383/kjgBuchung/images/expander_down.png");
+    -webkit-background-size: contain;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+div.expanded div.expander_bottom {
+    background-image: url("http://localhost:8383/kjgBuchung/images/expander_up.png");
+}

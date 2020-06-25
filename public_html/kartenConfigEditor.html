@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Positionen in Theaterkarten Vorlage</title>
+
+        <link rel="stylesheet" href="css/kartenConfigUI.css"/>
+        <link rel="stylesheet" href="css/loadingSpinner.css"/>
+
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/Matrix.js"></script>
+        <script src="js/pdfCanvas.js"></script>
+        <script src="js/pdfData.js"></script>
+        <script src="js/kartenConfigUI.js"></script>
+        <script src="js/kartenConfigHistory.js"></script>
+        <script src="js/userElementsPlacer.js"></script>
+    </head>
+    <body lang="de">
+        <canvas id="canvas" style="background-color: beige"></canvas>
+        <div id="tooltip">Test</div>
+
+        <div id="userElements">
+            <button onclick="autoDetectKartenConfig()">Konfiguration zurücksetzen</button>
+            <div id="loadingSpinner" class="spinner" style="float: right;"></div>
+            <br/>
+
+            <button id="undoKartenConfigButton" onclick="undoKartenConfig()" disabled>Rückgängig</button>
+            <button id="redoKartenConfigButton" onclick="redoKartenConfig()" disabled style="float: right;">Wiederherstellen
+            </button>
+
+            <br/><br/>
+
+            <div id="qrCodeConfigSurrounder" class="einzelkonfiguration selected" onclick="setSelectedConfig('qrCodeConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('qrCodeConfig')"></div>
+                <form id="qrCodeConfig">
+                    <input type="checkbox" name="enabled" onchange="changeQrCodeConfig();"/>QR Code einfügen
+                    <div id="qrCodeConfigData" class="eingerueckt" style="display: none">
+                        Bild ersetzen:
+                        <select name="replaceImage" onchange="qrCodeConfigSetCorners(); changeQrCodeConfig();">
+                            <option value="-1" selected>kein Bild ersetzen</option>
+                        </select>
+                        <fieldset name="lowerLeftCorner">
+                            <legend>untere linke Ecke:</legend>
+                            X: <input type="number" name="x" value="0" step="any" onchange="changeQrCodeConfig()"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any" onchange="changeQrCodeConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="lowerRightCorner">
+                            <legend>untere rechte Ecke:</legend>
+                            X: <input type="number" name="x" value="100" step="any" onchange="changeQrCodeConfig()"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any" onchange="changeQrCodeConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="upperLeftCorner">
+                            <legend>obere linke Ecke:</legend>
+                            X: <input type="number" name="x" value="0" step="any" onchange="changeQrCodeConfig()"/><br/>
+                            Y: <input type="number" name="y" value="100" step="any" onchange="changeQrCodeConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="upperRightCorner">
+                            <legend>obere rechte Ecke:</legend>
+                            X: <input type="number" name="x" step="any" readonly disabled value="100"
+                                      onchange="changeQrCodeConfig()"/><br/>
+                            Y: <input type="number" name="y" step="any" readonly disabled value="100"
+                                      onchange="changeQrCodeConfig()"/><br/>
+                        </fieldset>
+                        <button type="button" onclick="qrCodeConfigSetCorners(); changeQrCodeConfig()">Positonen
+                            zurücksetzen
+                        </button>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('qrCodeConfig')"></div>
+                </form>
+            </div>
+
+            <div id="sitzplanConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('sitzplanConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('sitzplanConfig')"></div>
+                <form id="sitzplanConfig">
+                    <input type="checkbox" name="enabled" onchange="changeSitzplanConfig();"/>Sitzplan einfügen
+                    <div id="sitzplanConfigData" class="eingerueckt" style="display: none">
+                        Bild ersetzen:
+                        <select name="replaceImage" onchange="sitzplanConfigSetCorners(); changeSitzplanConfig();">
+                            <option value="-1" selected>kein Bild ersetzen</option>
+                        </select>
+                        <fieldset name="lowerLeftCorner">
+                            <legend>untere linke Ecke:</legend>
+                            X: <input type="number" name="x" value="0" step="any" onchange="changeSitzplanConfig()"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any" onchange="changeSitzplanConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="lowerRightCorner">
+                            <legend>untere rechte Ecke:</legend>
+                            X: <input type="number" name="x" value="100" step="any" onchange="changeSitzplanConfig()"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any" onchange="changeSitzplanConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="upperLeftCorner">
+                            <legend>obere linke Ecke:</legend>
+                            X: <input type="number" name="x" value="0" step="any" onchange="changeSitzplanConfig()"/><br/>
+                            Y: <input type="number" name="y" value="100" step="any" onchange="changeSitzplanConfig()"/><br/>
+                        </fieldset>
+                        <fieldset name="upperRightCorner">
+                            <legend>obere rechte Ecke:</legend>
+                            X: <input type="number" name="x" step="any" readonly disabled value="100"
+                                      onchange="changeSitzplanConfig()"/><br/>
+                            Y: <input type="number" name="y" step="any" readonly disabled value="100"
+                                      onchange="changeSitzplanConfig()"/><br/>
+                        </fieldset>
+                        <button type="button" onclick="sitzplanConfigSetCorners(); changeSitzplanConfig()">Positonen
+                            zurücksetzen
+                        </button>
+                        <br/>
+                        <br/>
+                        Schriftart: <select name="font" onchange="changeSitzplanConfig()"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12" onchange="changeSitzplanConfig()"/><br/>
+                        Sitznummern sichtbar: <input type="checkbox" name="seatNumbersVisible" onchange="changeSitzplanConfig()"/><br/>
+                        Linienbreite: <input type="number" name="lineWidth" step="any" value="1" onchange="changeSitzplanConfig()"/><br/>
+                        Eingänge zu einem Pfeil verbinden: <input type="checkbox" name="connectEntranceArrows" onchange="changeSitzplanConfig()"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('sitzplanConfig')"></div>
+                </form>
+            </div>
+
+            <div id="textConfigSurrounder" class="einzelkonfiguration">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('textConfig')"></div>
+                <form id="textConfig">
+                    <b>Alle Textbausteine bearbeiten</b>
+                    <div id="textConfigData" style="display: none">
+                        <input type="checkbox" name="enabled" onchange="changeAllTextConfig()"/>Textbausteine
+                        einfügen
+                        <div class="eingerueckt">
+                            Ausrichtung: <select name="alignment" onchange="changeAllTextConfig()">
+                                <option value="indeterminate" selected disabled>---</option>
+                                <option value="0">Linksbündig</option>
+                                <option value="1">Zentriert</option>
+                                <option value="2">Rechtsbündig</option>
+                            </select><br/>
+                            Schriftart: <select name="font" onchange="changeAllTextConfig()">
+                                <option value="indeterminate" selected disabled>---</option>
+                            </select><br/>
+                            Schriftgröße: <input type="number" name="fontSize" step="any" value=""
+                                                 onchange="changeAllTextConfig()"/><br/>
+                            <!-- Da input type color auf jeden Fall eine Farbe gesetzt hat, wird bei einem indeterminate Zustand ein Button an die Stelle gesetzt-->
+                            Farbe:
+                            <input type="button" style="width: 4em; height: 1.5em; display: inline-block;" onclick="this.style.display = 'none'; this.nextElementSibling.style.display = 'inline-block'; this.nextElementSibling.click(); changeAllTextConfig();"/>
+                            <input type="color" name="color" style="width: 4em; height: 1.5em; display: none;" value="#000000" onchange="changeAllTextConfig()"/>
+                        </div>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('textConfig')"></div>
+                </form>
+            </div>
+
+            <div id="dateTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('dateTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('dateTextConfig')"></div>
+                <form id="dateTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('dateTextConfig')"/>Datum
+                    einfügen
+                    <div id="dateTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('dateTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('dateTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('dateTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('dateTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('dateTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('dateTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('dateTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="timeTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('timeTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('timeTextConfig')"></div>
+                <form id="timeTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('timeTextConfig')"/>Uhrzeit
+                    einfügen
+                    <div id="timeTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('timeTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('timeTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('timeTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('timeTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('timeTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('timeTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('timeTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="blockTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('blockTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('blockTextConfig')"></div>
+                <form id="blockTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('blockTextConfig')"/>Block
+                    einfügen
+                    <div id="blockTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('blockTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('blockTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('blockTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('blockTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('blockTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('blockTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('blockTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="reiheTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('reiheTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('reiheTextConfig')"></div>
+                <form id="reiheTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('reiheTextConfig')"/>Reihe
+                    einfügen
+                    <div id="reiheTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('reiheTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('reiheTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('reiheTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('reiheTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('reiheTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('reiheTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('reiheTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="platzTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('platzTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('platzTextConfig')"></div>
+                <form id="platzTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('platzTextConfig')"/>Platz
+                    einfügen
+                    <div id="platzTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('platzTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('platzTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('platzTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('platzTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('platzTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('platzTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('platzTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="preisTextConfigSurrounder" class="einzelkonfiguration" onclick="setSelectedConfig('preisTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('preisTextConfig')"></div>
+                <form id="preisTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('preisTextConfig')"/>Preis
+                    einfügen
+                    <div id="preisTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('preisTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('preisTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('preisTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('preisTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('preisTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000" onchange="changeTextConfig('preisTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('preisTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="bezahlstatusTextConfigSurrounder" class="einzelkonfiguration"
+                 onclick="setSelectedConfig('bezahlstatusTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('bezahlstatusTextConfig')"></div>
+                <form id="bezahlstatusTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('bezahlstatusTextConfig')"/>Bezahlstatus
+                    einfügen
+                    <div id="bezahlstatusTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('bezahlstatusTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('bezahlstatusTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('bezahlstatusTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('bezahlstatusTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('bezahlstatusTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000"
+                                      onchange="changeTextConfig('bezahlstatusTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('bezahlstatusTextConfig')"></div>
+                </form>
+            </div>
+
+            <div id="vorgangsNummerTextConfigSurrounder" class="einzelkonfiguration"
+                 onclick="setSelectedConfig('vorgangsNummerTextConfig')">
+                <div class="expander_left" onclick="shrinkOrExpandConfig('vorgangsNummerTextConfig')"></div>
+                <form id="vorgangsNummerTextConfig">
+                    <input type="checkbox" name="enabled" onchange="changeTextConfig('vorgangsNummerTextConfig')"/>Vorgangsnummer
+                    einfügen
+                    <div id="vorgangsNummerTextConfigData" class="eingerueckt" style="display: none">
+                        <fieldset name="position">
+                            <legend>Position:</legend>
+                            X: <input type="number" name="x" value="0" step="any"
+                                      onchange="changeTextConfig('vorgangsNummerTextConfig')"/><br/>
+                            Y: <input type="number" name="y" value="0" step="any"
+                                      onchange="changeTextConfig('vorgangsNummerTextConfig')"/><br/>
+                        </fieldset>
+                        <br/>
+                        Ausrichtung: <select name="alignment" onchange="changeTextConfig('vorgangsNummerTextConfig')">
+                            <option value="0">Linksbündig</option>
+                            <option value="1">Zentriert</option>
+                            <option value="2">Rechtsbündig</option>
+                        </select><br/>
+                        Schriftart: <select name="font" onchange="changeTextConfig('vorgangsNummerTextConfig')"></select><br/>
+                        Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12"
+                                                        onchange="changeTextConfig('vorgangsNummerTextConfig')"/><br/>
+                        Farbe: <input type="color" name="color" value="#000000"
+                                      onchange="changeTextConfig('vorgangsNummerTextConfig')"/>
+                    </div>
+                    <div class="expander_bottom" onclick="shrinkOrExpandConfig('vorgangsNummerTextConfig')"></div>
+                </form>
+            </div>
+        </div>
+
+        <br/>
+        <button onclick="openDemoWindow()"><b>Live-Vorschau anzeigen</b></button><br/>
+        <button onclick="goToPdfUpload()">Andere Datei als Vorlage hochladen</button><br/>
+        
+        <br/>
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+        
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

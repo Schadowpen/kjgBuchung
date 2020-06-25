@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>kjg Buchung - Vorlage bearbeiten</title>
+        <meta charset="UTF-8">
+        <script src="js/forge-sha256.min.js"></script>
+        <script src="js/mainFunctions.js"></script>
+        <script src="js/templateData.js"></script>
+        <script src="js/templateCanvas.js"></script>
+        <script src="js/bezier.js"></script>
+        <script src="js/sitzplanBearbeitenPage.js"></script>
+        <script src="js/userElementsPlacer.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/sitzplanBearbeitenPage.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+        <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
+    </head>
+    <body>
+        <header>
+            <a href="main.html">Ticketing</a>
+            <a href="suche.html">Suche</a>
+            <a href="vorgang.html">Vorgang</a>
+            <a href="uebersicht.html">&Uuml;bersicht</a>
+            <a href="archiv.html">Archiv</a>
+            <a href="template.html">Vorlagen</a>
+        </header>
+
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+
+
+        <canvas id="canvas" style="width: 1000px; height: 700px; background-color: beige" > </canvas>
+
+
+        <div id="userElements" class="uebersicht" >
+            <div class="elementArea">
+                <div class="elementTitle"><b>Bereiche:</b> (<span id="bereicheCount">0</span>)</div>
+                <div id="bereiche" class="elementScrollArea">
+                    
+                </div>
+                <button onclick="addBereich()">Bereich hinzuf&uuml;gen</button>
+            </div>
+            <div class="elementArea">
+                <div class="elementTitle"><b>Eing&auml;nge</b> (<span id="eingaengeCount">0</span>)</div>
+                <div id="eingaenge" class="elementScrollArea">
+                    
+                </div>
+                <button onclick="addEingang()">Eingang hinzuf&uuml;gen</button>
+            </div>
+            <div class="elementArea">
+                <div class="elementTitle"><b>Pl&auml;tze:</b> (<span id="plaetzeCount">0</span>)</div>
+                <div id="plaetze" class="elementScrollArea">
+                    
+                </div>
+                <button onclick="addPlatz()">Platz hinzuf&uuml;gen</button>
+            </div>
+            <div class="elementArea">
+                <div class="elementTitle"><b>Platzgruppen:</b> (<span id="platzGruppenCount">0</span>)</div>
+                <div id="platzGruppen" class="elementScrollArea">
+                    
+                </div>
+                <button onclick="addPlatzGruppe()">PlatzGruppe hinzuf&uuml;gen</button>
+            </div>
+        </div>
+
+        <h1>Allgemeines:</h1>
+        <table>
+            <tbody>
+                <tr>
+                    <td>Raum Breite:</td>
+                    <td><input type="number" id="raumBreite" onchange="onRaumBreiteChange()"/></td>
+                </tr>
+                <tr>
+                    <td>Raum L&auml;nge:</td>
+                    <td><input type="number" id="raumLaenge" onchange="onRaumLaengeChange()"/></td>
+                </tr>
+                <tr>
+                    <td>Sitz Breite:</td>
+                    <td><input type="number" id="sitzBreite" onchange="onSitzBreiteChange()"/></td>
+                </tr>
+                <tr>
+                    <td>Sitz L&auml;nge</td>
+                    <td><input type="number" id="sitzLaenge" onchange="onSitzLaengeChange()"/></td>
+                </tr>
+                <tr>
+                    <td>L&auml;ngeneinheit:</td>
+                    <td><input type="text" id="laengenEinheit" onchange="onLaengenEinheitChange()"/></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!--
+        <h1>Warnungen:</h1>
+        <div id="sitzplanWarnings"/>
+        -->
+
+
+        <div id="uploadSpinner" class="spinner" style="display: none;"></div>
+
+        <br/><br/>
+        <div>
+            <input type="button" value="Fehler melden" onclick="reportError('');" />
+        </div>
+
+        <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+    </body>
+</html>

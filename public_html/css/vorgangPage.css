@@ -11,3 +11,8 @@ table.plaetze td, table.plaetze th {
     border-top: 0;
     border-right: 0;
 }
+
+#vorgangTable textarea {
+    width: 100%;
+    height: 6em;
+}

@@ -133,6 +133,8 @@ function loadingComplete() {
     if (objectsLoaded === objectsToLoad) {
         if (typeof initCanvas === "function")
             initCanvas();
+        else
+            showLoading(1);
         if (typeof initUI === "function")
             initUI();
         if (archiveDatabase == null) // only update if not in archive

@@ -21,6 +21,7 @@
             <a href="vorgang.html">Vorgang</a>
             <a href="uebersicht.html">&Uuml;bersicht</a>
             <a href="archiv.html">Archiv</a>
+            <a href="template.html">Vorlagen</a>
         </header>
 
         <div style="font-size: 150%;">
@@ -79,50 +80,56 @@
 
                 <div  id="vorgang" style="display: none">
                     <table>
-                        <tr>
-                            <td>Nummer:</td>
-                            <td id="vorgangNr"></td>
-                        </tr>
-                        <tr>
-                            <td>Vorname:</td>
-                            <td id="vorgangVorname"></td>
-                        </tr>
-                        <tr>
-                            <td>Nachname:</td>
-                            <td id="vorgangNachname"></td>
-                        </tr>
-                        <tr>
-                            <td>Email:</td>
-                            <td><a href="" id="vorgangEmail"></a></td>
-                        </tr>
-                        <tr>
-                            <td>Telefon:</td>
-                            <td id="vorgangTel"></td>
-                        </tr>
-                        <tr>
-                            <td>Gesamtpreis:</td>
-                            <td id="vorgangGesPreis"></td>
-                        </tr>
-                        <tr>
-                            <td>Bezahlart:</td>
-                            <td id="vorgangBezahlart"></td>
-                        </tr>
-                        <tr>
-                            <td>Bezahlt:</td>
-                            <td id="vorgangBezahlung"></td>
-                        </tr>
-                        <tr>
-                            <td>Versandart:</td>
-                            <td id="vorgangVersand"></td>
-                        </tr>
-                        <tr>
-                            <td>Anschrift:</td>
-                            <td id="vorgangAnschrift"></td>
-                        </tr>
-                        <tr>
-                            <td>Kommentar:</td>
-                            <td id="vorgangKommentar"></td>
-                        </tr>
+                        <tbody id="vorgangTable">
+                            <tr>
+                                <td>Nummer:</td>
+                                <td id="vorgangNr"></td>
+                            </tr>
+                            <tr>
+                                <td>Daten beim archivieren <br/> schwärzen / löschen:</td>
+                                <td id="vorgangBlackDataInArchive"></td>
+                            </tr>
+                            <tr>
+                                <td>Vorname:</td>
+                                <td id="vorgangVorname"></td>
+                            </tr>
+                            <tr>
+                                <td>Nachname:</td>
+                                <td id="vorgangNachname"></td>
+                            </tr>
+                            <tr>
+                                <td>Email:</td>
+                                <td><a href="" id="vorgangEmail"></a></td>
+                            </tr>
+                            <tr>
+                                <td>Telefon:</td>
+                                <td id="vorgangTel"></td>
+                            </tr>
+                            <tr>
+                                <td>Gesamtpreis:</td>
+                                <td id="vorgangGesPreis"></td>
+                            </tr>
+                            <tr>
+                                <td>Bezahlart:</td>
+                                <td id="vorgangBezahlart"></td>
+                            </tr>
+                            <tr>
+                                <td>Bezahlt:</td>
+                                <td id="vorgangBezahlung"></td>
+                            </tr>
+                            <tr>
+                                <td>Versandart:</td>
+                                <td id="vorgangVersand"></td>
+                            </tr>
+                            <tr>
+                                <td>Anschrift:</td>
+                                <td id="vorgangAnschrift"></td>
+                            </tr>
+                            <tr>
+                                <td>Kommentar:</td>
+                                <td id="vorgangKommentar"></td>
+                            </tr>
+                        </tbody>
                     </table>
                     <div style="display: flex;">
                         <button onclick="location.href = urlFuerDiesenVorgang();"> <img src="images/edit.png" class="buttonImage"/> Vorgang bearbeiten </button>

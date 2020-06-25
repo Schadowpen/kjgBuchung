@@ -49,17 +49,14 @@ function loadCanvas() {
     seatGray.onload = loadingComplete();
     seatGray.src = imagesUrl + "seat_gray.png";
 
-    // load seatGrayHighlighted
     seatGrayHighlighted = new Image();
     seatGrayHighlighted.onload = loadingComplete();
     seatGrayHighlighted.src = imagesUrl + "seat_gray_highlighted.png";
 
-    // load seatGraySelected
     seatGraySelected = new Image();
     seatGraySelected.onload = loadingComplete();
     seatGraySelected.src = imagesUrl + "seat_gray_selected.png";
 
-    // load seatGrayHighlighted
     seatGrayHighlightedSelected = new Image();
     seatGrayHighlightedSelected.onload = loadingComplete();
     seatGrayHighlightedSelected.src = imagesUrl + "seat_gray_highlighted_selected.png";
@@ -69,17 +66,14 @@ function loadCanvas() {
     seatRed.onload = loadingComplete();
     seatRed.src = imagesUrl + "seat_red.png";
 
-    // load seatRedHighlighted
     seatRedHighlighted = new Image();
     seatRedHighlighted.onload = loadingComplete();
     seatRedHighlighted.src = imagesUrl + "seat_red_highlighted.png";
 
-    // load seatRedSelected
     seatRedSelected = new Image();
     seatRedSelected.onload = loadingComplete();
     seatRedSelected.src = imagesUrl + "seat_red_selected.png";
 
-    // load seatRedHighlightedSelected
     seatRedHighlightedSelected = new Image();
     seatRedHighlightedSelected.onload = loadingComplete();
     seatRedHighlightedSelected.src = imagesUrl + "seat_red_highlighted_selected.png";
@@ -89,17 +83,14 @@ function loadCanvas() {
     seatYellow.onload = loadingComplete();
     seatYellow.src = imagesUrl + "seat_yellow.png";
 
-    // load seatYellowHighlighted
     seatYellowHighlighted = new Image();
     seatYellowHighlighted.onload = loadingComplete();
     seatYellowHighlighted.src = imagesUrl + "seat_yellow_highlighted.png";
 
-    // load seatYellowSelected
     seatYellowSelected = new Image();
     seatYellowSelected.onload = loadingComplete();
     seatYellowSelected.src = imagesUrl + "seat_yellow_selected.png";
 
-    // load seatYellowHighlightedSelected
     seatYellowHighlightedSelected = new Image();
     seatYellowHighlightedSelected.onload = loadingComplete();
     seatYellowHighlightedSelected.src = imagesUrl + "seat_yellow_highlighted_selected.png";
@@ -109,17 +100,14 @@ function loadCanvas() {
     seatGreen.onload = loadingComplete();
     seatGreen.src = imagesUrl + "seat_green.png";
 
-    // load seatGreenHighlighted
     seatGreenHighlighted = new Image();
     seatGreenHighlighted.onload = loadingComplete();
     seatGreenHighlighted.src = imagesUrl + "seat_green_highlighted.png";
 
-    // load seatGreenSelected
     seatGreenSelected = new Image();
     seatGreenSelected.onload = loadingComplete();
     seatGreenSelected.src = imagesUrl + "seat_green_selected.png";
 
-    // load seatGreenHighlightedSelected
     seatGreenHighlightedSelected = new Image();
     seatGreenHighlightedSelected.onload = loadingComplete();
     seatGreenHighlightedSelected.src = imagesUrl + "seat_green_highlighted_selected.png";
@@ -129,17 +117,14 @@ function loadCanvas() {
     seatBlue.onload = loadingComplete();
     seatBlue.src = imagesUrl + "seat_blue.png";
 
-    // load seatBlueHighlighted
     seatBlueHighlighted = new Image();
     seatBlueHighlighted.onload = loadingComplete();
     seatBlueHighlighted.src = imagesUrl + "seat_blue_highlighted.png";
 
-    // load seatBlueSelected
     seatBlueSelected = new Image();
     seatBlueSelected.onload = loadingComplete();
     seatBlueSelected.src = imagesUrl + "seat_blue_selected.png";
 
-    // load seatBlueHighlightedSelected
     seatBlueHighlightedSelected = new Image();
     seatBlueHighlightedSelected.onload = loadingComplete();
     seatBlueHighlightedSelected.src = imagesUrl + "seat_blue_highlighted_selected.png";

@@ -21,6 +21,7 @@
             <a href="vorgang.html">Vorgang</a>
             <a href="uebersicht.html">&Uuml;bersicht</a>
             <a href="archiv.html">Archiv</a>
+            <a href="template.html">Vorlagen</a>
         </header>
 
         <div style="font-size: 150%;">
@@ -58,72 +59,78 @@
             <div class="uebersicht" >
                 <h3>Vorgang &Uuml;bersicht</h3>
                 <table>
-                    <tr>
-                        <td>Nummer:</td>
-                        <td id="vorgangNr"></td>
-                    </tr>
-                    <tr>
-                        <td>Vorname:</td>
-                        <td> <input type="text" id="vorgangVorname"  oninput="onVorgangChanged();" /></td>
-                    </tr>
-                    <tr>
-                        <td>Nachname:</td>
-                        <td> <input type="text" id="vorgangNachname"  oninput="onVorgangChanged();" /></td>
-                    </tr>
-                    <tr>
-                        <td>E-Mail:</td>
-                        <td><input type="email" id="vorgangEmail"  oninput="onVorgangChanged();" /></td>
-                    </tr>
-                    <tr>
-                        <td>Telefon:</td>
-                        <td> <input type="tel" id="vorgangTel"  oninput="onVorgangChanged();" /></td>
-                    </tr>
-                    <tr>
-                        <td>Einzelpreis</td>
-                        <td> 
-                            <span id="vorgangPreisNoVIP"><input type="number" min="0" step="0.01" value="5" id="vorgangPreis" oninput="onVorgangCalculationChanged();" />&euro;</span>
-                            <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Gesamtpreis:</td>
-                        <td id="vorgangGesPreis"></td>
-                    </tr>
-                    <tr>
-                        <td>Bezahlart:</td>
-                        <td> <select id="vorgangBezahlart" onchange="onVorgangCalculationChanged();" >
-                                <option value="Bar">Bar</option>
-                                <option value="Ueberweisung">&Uuml;berweisung</option>
-                                <option value="PayPal">PayPal</option>
-                                <option value="Abendkasse">Abendkasse</option>
-                                <option value="VIP">VIP</option>
-                                <option value="TripleA">Triple A</option>
-                            </select></td>
-                    </tr>
-                    <tr>
-                        <td>Bezahlt:</td>
-                        <td> <select id="vorgangBezahlung" onchange="onVorgangCalculationChanged();" >
-                                <option value="offen">offen</option>
-                                <option value="bezahlt">bezahlt</option>
-                                <option value="Abendkasse" disabled>bezahlt an der Abendkasse</option>
-                            </select></td>
-                    </tr>
-                    <tr>
-                        <td>Versandart:</td>
-                        <td> <select id="vorgangVersand" onchange="onVorgangCalculationChanged();" >
-                                <option value="Abholung">Abholung</option>
-                                <option value="E-Mail">E-Mail</option>
-                                <option value="Post">Post</option>
-                            </select></td>
-                    </tr>
-                    <tr>
-                        <td>Anschrift:</td>
-                        <td style="width: 100%;"> <input type="text" id="vorgangAnschrift" style="width: 100%;" onchange="onVorgangChanged();" /></td>
-                    </tr>
-                    <tr>
-                        <td>Kommentar:</td>
-                        <td> <textarea id="vorgangKommentar" style="width: 100%; height: 6em" onchange="onVorgangChanged();"></textarea></td>
-                    </tr>
+                    <tbody id="vorgangTable">
+                        <tr>
+                            <td>Nummer:</td>
+                            <td id="vorgangNr"></td>
+                        </tr>
+                        <tr>
+                            <td>Daten beim archivieren <br/> schwärzen / löschen:</td>
+                            <td><input type="checkbox" id="vorgangBlackDataInArchive" oninput="onVorgangChanged()"/></td>
+                        </tr>
+                        <tr>
+                            <td>Vorname:</td>
+                            <td> <input type="text" id="vorgangVorname"  oninput="onVorgangChanged();" /></td>
+                        </tr>
+                        <tr>
+                            <td>Nachname:</td>
+                            <td> <input type="text" id="vorgangNachname"  oninput="onVorgangChanged();" /></td>
+                        </tr>
+                        <tr>
+                            <td>E-Mail:</td>
+                            <td><input type="email" id="vorgangEmail"  oninput="onVorgangChanged();" /></td>
+                        </tr>
+                        <tr>
+                            <td>Telefon:</td>
+                            <td> <input type="tel" id="vorgangTel"  oninput="onVorgangChanged();" /></td>
+                        </tr>
+                        <tr>
+                            <td>Einzelpreis</td>
+                            <td> 
+                                <span id="vorgangPreisNoVIP"><input type="number" min="0" step="0.01" value="" id="vorgangPreis" oninput="onVorgangCalculationChanged();" />&euro;</span>
+                                <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gesamtpreis:</td>
+                            <td id="vorgangGesPreis"></td>
+                        </tr>
+                        <tr>
+                            <td>Bezahlart:</td>
+                            <td> <select id="vorgangBezahlart" onchange="onVorgangCalculationChanged();" >
+                                    <option value="Bar">Bar</option>
+                                    <option value="Ueberweisung">&Uuml;berweisung</option>
+                                    <option value="PayPal">PayPal</option>
+                                    <option value="Abendkasse">Abendkasse</option>
+                                    <option value="VIP">VIP</option>
+                                    <option value="TripleA">Triple A</option>
+                                </select></td>
+                        </tr>
+                        <tr>
+                            <td>Bezahlt:</td>
+                            <td> <select id="vorgangBezahlung" onchange="onVorgangCalculationChanged();" >
+                                    <option value="offen">offen</option>
+                                    <option value="bezahlt">bezahlt</option>
+                                    <option value="Abendkasse" disabled>bezahlt an der Abendkasse</option>
+                                </select></td>
+                        </tr>
+                        <tr>
+                            <td>Versandart:</td>
+                            <td> <select id="vorgangVersand" onchange="onVorgangCalculationChanged();" >
+                                    <option value="Abholung">Abholung</option>
+                                    <option value="E-Mail">E-Mail</option>
+                                    <option value="Post">Post</option>
+                                </select></td>
+                        </tr>
+                        <tr>
+                            <td>Anschrift:</td>
+                            <td style="width: 100%;"> <input type="text" id="vorgangAnschrift" style="width: 100%;" onchange="onVorgangChanged();" /></td>
+                        </tr>
+                        <tr>
+                            <td>Kommentar:</td>
+                            <td> <textarea id="vorgangKommentar" onchange="onVorgangChanged();"></textarea></td>
+                        </tr>
+                    </tbody>
                 </table>
                 <div style="display: flex; justify-content: space-between;" >
                     <button id="vorgangSpeichern" disabled onclick="onVorgangSave();"> <img src="images/save.png" class="buttonImage"/> Speichern </button>

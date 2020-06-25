@@ -1,4 +1,4 @@
-/* global vorstellungen, getSelectedSeat, vorgang, urlForVorgangPage */
+/* global vorstellungen, getSelectedSeat, vorgang, urlForVorgangPage, sitzplan */
 
 /**
  * Index of the date and time, which Vorstellung should be displayed
@@ -10,6 +10,7 @@ var selectedDateIndex = 0;
  * Initializes the UI, called from data.js
  */
 function initUI() {
+    // init dateselector
     var dateSelector = document.getElementById("date");
     for (var i = 0; i < vorstellungen.length; i++) {
         var opt = document.createElement("option");
@@ -17,6 +18,22 @@ function initUI() {
         dateSelector.options.add(opt);
     }
     dateSelector.options.selectedIndex = 0;
+
+    // init additional vorgang fields
+    if (sitzplan.additionalFieldsForVorgang != null) {
+        var vorgangTable = document.getElementById("vorgangTable");
+        for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+            var additionalField = sitzplan.additionalFieldsForVorgang[i];
+            var td1 = document.createElement("td");
+            td1.innerHTML = additionalField.description + ":";
+            var td2 = document.createElement("td");
+            td2.id = "vorgang" + additionalField.fieldName;
+            var tr = document.createElement("tr");
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            vorgangTable.appendChild(tr);
+        }
+    }
 }
 
 /**
@@ -136,12 +153,12 @@ function onStatusUpdate(dateIndex, platz, neuerStatus) {
         if (vorstellungen[dateIndex][platz.ID] == null || vorstellungen[dateIndex][platz.ID].status !== "anwesend") {
             setSelectedSeat(dateIndex, platz);
             displaySeatInformation();
-            
+
             // Animation, dass ein neuer Platz ausgewählt wurde wurde
             var platzUebersicht = document.getElementById("PlatzUebersicht");
             var platzUebersichtClass = platzUebersicht.className;
             platzUebersicht.className = platzUebersichtClass + " blueAnimation";
-            setTimeout(function() {
+            setTimeout(function () {
                 platzUebersicht.className = platzUebersichtClass;
             }, 2100);
         }
@@ -210,6 +227,7 @@ function displaySeatInformation() {
 
         ladeVorgang(vorgangsNr, function () {
             document.getElementById("vorgangNr").innerHTML = vorgang.nummer;
+            document.getElementById("vorgangBlackDataInArchive").innerHTML = vorgang.blackDataInArchive ? "Ja" : "Nein";
             document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname : "";
             document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname : "";
             document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email : "";
@@ -221,6 +239,25 @@ function displaySeatInformation() {
             document.getElementById("vorgangVersand").innerHTML = vorgang.versandart ? vorgang.versandart : "";
             document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift : "";
             document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar : "";
+            if (sitzplan.additionalFieldsForVorgang != null) {
+                for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+                    var additionalField = sitzplan.additionalFieldsForVorgang[i];
+                    var domElement = document.getElementById("vorgang" + additionalField.fieldName);
+                    switch (additionalField.type) {
+                        case "boolean":
+                            if (vorgang[additionalField.fieldName] === true)
+                                domElement.innerHTML = "Ja";
+                            else if (vorgang[additionalField.fieldName] === false)
+                                domElement.innerHTML = "Nein";
+                            else
+                                domElement.innerHTML = "";
+                            break;
+                        default:
+                            domElement.innerHTML = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName] : "";
+                            break;
+                    }
+                }
+            }
 
             document.getElementById("keinVorgang").style.display = "none";
             document.getElementById("vorgangLoading").style.display = "none";

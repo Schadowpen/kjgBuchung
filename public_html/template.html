@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>kjg Buchung - &Uuml;bersicht</title>
+        <title>kjg Buchung - Vorlagen</title>
         <meta charset="UTF-8">
         <script src="js/forge-sha256.min.js"></script>
         <script src="js/mainFunctions.js"></script>
-        <script src="js/uebersichtPage.js"></script>
+        <script src="js/templatePage.js"></script>
         <link rel="stylesheet" type="text/css" href="css/main.css" />
-        <link rel="stylesheet" type="text/css" href="css/uebersichtPage.css"/>
+        <link rel="stylesheet" type="text/css" href="css/archivPage.css" />
         
         <link rel="stylesheet" type="text/css" href="css/headerLayout.css" />
     </head>
@@ -20,28 +20,30 @@
             <a href="archiv.html">Archiv</a>
             <a href="template.html">Vorlagen</a>
         </header>
-
-        <h1>&Uuml;bersicht f&uuml;r: <span id="veranstaltung"></span></h1>
-        <table style="width: 100%; border: 1px solid; border-spacing: 2px">
+        
+        <noscript>
+        <p class="error" >
+            Please activate JavaScript!
+        </p>
+        </noscript>
+        
+        <h1>Vorlagen:</h1>
+        <button id="newTemplateButton" onclick="onNewTemplateClick()">Neue Vorlage erstellen</button><br/>
+        <br/>
+        
+        <table>
             <thead>
                 <tr>
-                    <th>Vorstellung</th>
-                    <th>Anzahl Pl&auml;tze</th>
-                    <th>davon frei</th>
-                    <th>davon reserviert</th>
-                    <th>davon gebucht</th>
-                    <th>davon VIP</th>
-                    <th>davon Triple A</th>
-                    <th>gesamte Einnahmen</th>
-                    <th>bereits gezahlte Einnahmen</th>
+                    <td>Veranstaltung:</td>
+                    <td></td>
                 </tr>
             </thead>
-
-            <tbody id="gesamt"></tbody>
-
-            <tbody id="einzel"></tbody>
+            <tbody id="templateTable">
+                <tr><td>Loading...</td></tr>
+            </tbody>
         </table>
-
+        
+        <br/>
         <div>
             <input type="button" value="Fehler melden" onclick="reportError('');" />
         </div>

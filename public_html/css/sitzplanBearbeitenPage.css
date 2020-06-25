@@ -1,0 +1,54 @@
+#userElements {
+    display: flex;
+    flex-direction: row;
+    min-width: 1000px;
+    height: 700px;
+}
+.elementArea {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.elementTitle {
+    border-bottom: 1px solid black;
+    padding-bottom: 3px;
+}
+
+.elementScrollArea {
+    width: 100%;
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.elementScrollArea div.mainElement {
+    border: 1px solid black;
+    margin: 3px 0px;
+    padding: 1px;
+}
+
+.elementScrollArea div.mainElement.selected {
+    border: 2px solid red;
+}
+
+.elementScrollArea td {
+    white-space: nowrap;
+}
+
+.elementScrollArea input {
+    width: 100px;
+}
+
+.elementScrollArea div.fieldWithButton input {
+    width: 60px;
+}
+.elementScrollArea div.fieldWithButton button {
+    width: 40px;
+}
+
+
+#sitzplanWarnings {
+    color: red;
+}

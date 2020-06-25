@@ -1,4 +1,4 @@
-/* global objectsToLoad, apiUrl, urlForVorgangPage, vorstellungen, archiveDatabase */
+/* global objectsToLoad, apiUrl, urlForVorgangPage, vorstellungen, archiveDatabase, sitzplan */
 
 /**
  * Index of the date and time, which Vorstellung should be displayed
@@ -35,6 +35,12 @@ var selectedVorgang = null;
  */
 function loadUI() {
     objectsToLoad += 3;
+    
+    if (archiveDatabase == null) {
+        window.alert("Name der Archiv-Datenbank nicht in den URL-Parametern angegeben. Öffne diese Seite besser vom Archiv aus!");
+        return;
+    }
+    
     var xmlHttp1;
     try {
         xmlHttp1 = new XMLHttpRequest();
@@ -106,6 +112,23 @@ function initUI() {
     }
     dateSelector.options.selectedIndex = 0;
 
+
+    // init additional vorgang fields
+    if (sitzplan.additionalFieldsForVorgang != null) {
+        var vorgangTable = document.getElementById("vorgangTable");
+        for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+            var additionalField = sitzplan.additionalFieldsForVorgang[i];
+            var td1 = document.createElement("td");
+            td1.innerHTML = additionalField.description + ":";
+            var td2 = document.createElement("td");
+            td2.id = "vorgang" + additionalField.fieldName;
+            var tr = document.createElement("tr");
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            vorgangTable.appendChild(tr);
+        }
+    }
+    
 
     // Suche
     // Vorstellungen selektieren
@@ -417,6 +440,7 @@ function displayVorgang() {
         document.getElementById("vorgang").style.display = "block";
 
         document.getElementById("vorgangNr").innerHTML = selectedVorgang.nummer;
+        document.getElementById("vorgangBlackDataInArchive").innerHTML = selectedVorgang.blackDataInArchive ? "Ja" : "Nein";
         document.getElementById("vorgangVorname").innerHTML = selectedVorgang.vorname ? selectedVorgang.vorname : "";
         document.getElementById("vorgangNachname").innerHTML = selectedVorgang.nachname ? selectedVorgang.nachname : "";
         document.getElementById("vorgangEmail").innerHTML = selectedVorgang.email ? selectedVorgang.email : "";
@@ -432,6 +456,25 @@ function displayVorgang() {
         for (var i = 0; i < selectedVorgang.vorstellungen.length; i++)
             vorstellungenString += selectedVorgang.vorstellungen[i].date + "&nbsp;&nbsp;" + selectedVorgang.vorstellungen[i].time + (i + 1 === selectedVorgang.vorstellungen.length ? "" : "<br/>");
         document.getElementById("vorgangVorstellungen").innerHTML = vorstellungenString;
+            if (sitzplan.additionalFieldsForVorgang != null) {
+                for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+                    var additionalField = sitzplan.additionalFieldsForVorgang[i];
+                    var domElement = document.getElementById("vorgang" + additionalField.fieldName);
+                    switch (additionalField.type) {
+                        case "boolean":
+                            if (selectedVorgang[additionalField.fieldName] === true)
+                                domElement.innerHTML = "Ja";
+                            else if (selectedVorgang[additionalField.fieldName] === false)
+                                domElement.innerHTML = "Nein";
+                            else
+                                domElement.innerHTML = "";
+                            break;
+                        default:
+                            domElement.innerHTML = selectedVorgang[additionalField.fieldName] ? selectedVorgang[additionalField.fieldName] : "";
+                            break;
+                    }
+                }
+            }
 
         // finde selected Seats
         selectedSeats = [];
