@@ -1,0 +1,20 @@
+/* CSS für Ladeanimationen */
+.spinner {
+    border: 3px solid lightgray;
+    border-top: 3px solid gray;
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    -webkit-animation: spin 1s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+}
+
+@-webkit-keyframes spin { /* Safari */
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
