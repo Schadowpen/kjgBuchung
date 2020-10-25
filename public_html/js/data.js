@@ -90,7 +90,7 @@ window.addEventListener('load', function () {
                 // set title
                 var vName = document.getElementById("veranstaltungsName");
                 if (vName)
-                    vName.innerHTML = sitzplan.veranstaltung;
+                    vName.innerHTML = sitzplan.veranstaltung.escapeHTML();
 
                 loadingComplete();
             }

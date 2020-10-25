@@ -51,7 +51,7 @@
                 <tr>
                     <td>Uhrzeit:</td>
                     <td><input id="newVorstellungTime" type="time"/></td>
-                    <td><button id="newVorstellungButton" onclick="newVorstellung()">Speichern</button></td>
+                    <td><button id="newVorstellungButton" onclick="newVorstellung()"><img src="images/save.png" class="buttonImage"/> Speichern</button></td>
                 </tr>
             </tbody>
         </table>
@@ -155,7 +155,7 @@
                 <tr>
                     <td>Erforderlich:</td>
                     <td><input type="checkbox" id="newAdditionalFieldForVorgangRequired"/></td>
-                    <td><button id="newAdditionalFieldForVorgangButton" onclick="newAdditionalFieldForVorgang()">Speichern</button></td>
+                    <td><button id="newAdditionalFieldForVorgangButton" onclick="newAdditionalFieldForVorgang()"><img src="images/save.png" class="buttonImage"/> Speichern</button></td>
                 </tr>
             </tbody>
         </table>
@@ -164,14 +164,14 @@
 
         <canvas id="canvas" style="width: 1000px; height: 700px; background-color: beige" > </canvas>
         <br/>
-        <button onClick="onSitzplanBearbeitenClick()">Sitzplan bearbeiten</button>
+        <button onClick="onSitzplanBearbeitenClick()"><img src="images/edit.png" class="buttonImage"/> Sitzplan bearbeiten</button>
 
         
         <h1>Demo Theaterkarte:</h1>
 
         <iframe id="demoTheaterkarte" width="600" height="900"></iframe>
         <br/>
-        <button onclick="onKartenVorlageBearbeitenClick()">Kartenvorlage bearbeiten</button>
+        <button onclick="onKartenVorlageBearbeitenClick()"><img src="images/edit.png" class="buttonImage"/> Kartenvorlage bearbeiten</button>
 
         
         <form id="upload" action="http://localhost:8000/uploadKartenVorlage.php" method="post" enctype="multipart/form-data">

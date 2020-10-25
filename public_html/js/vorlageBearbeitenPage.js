@@ -1,4 +1,4 @@
-/* global apiUrl, urlForKartenVorlageBearbeitenPage, urlForSitzplanBearbeitenPage, objectsToLoad, databaseName, veranstaltung */
+/* global apiUrl, urlForKartenVorlageBearbeitenPage, urlForSitzplanBearbeitenPage, objectsToLoad, databaseName, veranstaltung, imagesUrl */
 
 function loadUI() {
     // iframe eine Demo Theaterkarte laden lassen
@@ -77,7 +77,6 @@ function loadVorstellungen() {
         xmlHttp1.send(null);
     }
 }
-window.addEventListener("load", loadVorstellungen);
 
 function initVorstellungen() {
     var vorstellungenDiv = document.getElementById("vorstellungenDiv");
@@ -103,7 +102,7 @@ function initVorstellungen() {
         var td5 = document.createElement("td");
         td5.innerHTML = time;
         var deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "Löschen";
+        deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
         deleteButton.onclick = deleteVorstellung;
         vorstellungenDeleteButtons.push(deleteButton);
         var td6 = document.createElement("td");
@@ -197,7 +196,7 @@ function renderAdditionalFieldsForVorgang() {
         var required = veranstaltung.additionalFieldsForVorgang[i].required;
         
         var td1 = document.createElement("td");
-        td1.innerHTML = description + ":";
+        td1.innerHTML = description.escapeHTML() + ":";
         var td2 = document.createElement("td");
         switch (type) {
             case "integer": td2.innerHTML = "Ganze Zahl"; break;
@@ -216,7 +215,7 @@ function renderAdditionalFieldsForVorgang() {
         var td4 = document.createElement("td");
         var td5 = document.createElement("td");
         var deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "Löschen";
+        deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
         deleteButton.onclick = deleteAdditionalFieldForVorgang;
         additionalFieldsForVorgangDeleteButtons.push(deleteButton);
         var td6 = document.createElement("td");
@@ -383,7 +382,7 @@ function uploadFile(file) {
         document.getElementById("uploadSpinner").style.display = "block";
         // start upload
         xhr.open("POST", document.getElementById("upload").action, true);
-        xhr.setRequestHeader("X_FILENAME", file.name);
+        xhr.setRequestHeader("X-FILENAME", file.name);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
                 document.getElementById("uploadSpinner").style.display = "none";

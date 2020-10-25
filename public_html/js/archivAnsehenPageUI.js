@@ -1,4 +1,4 @@
-/* global objectsToLoad, apiUrl, urlForVorgangPage, vorstellungen, archiveDatabase, sitzplan */
+/* global objectsToLoad, apiUrl, urlForVorgangPage, vorstellungen, archiveDatabase, sitzplan, urlForArchiv */
 
 /**
  * Index of the date and time, which Vorstellung should be displayed
@@ -37,7 +37,7 @@ function loadUI() {
     objectsToLoad += 3;
     
     if (archiveDatabase == null) {
-        window.alert("Name der Archiv-Datenbank nicht in den URL-Parametern angegeben. Öffne diese Seite besser vom Archiv aus!");
+        location.href = urlForArchiv;
         return;
     }
     
@@ -119,7 +119,7 @@ function initUI() {
         for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
             var additionalField = sitzplan.additionalFieldsForVorgang[i];
             var td1 = document.createElement("td");
-            td1.innerHTML = additionalField.description + ":";
+            td1.innerHTML = additionalField.description.escapeHTML() + ":";
             var td2 = document.createElement("td");
             td2.id = "vorgang" + additionalField.fieldName;
             var tr = document.createElement("tr");
@@ -299,13 +299,13 @@ function addVorgangToDOM(liste, vorgang) {
     td3.innerHTML = "Vorname: ";
     td3.className = "shrink";
     var td4 = document.createElement("td");
-    td4.innerHTML = vorgang.vorname;
+    td4.innerHTML = vorgang.vorname.escapeHTML();
     td4.className = "expand";
     var td5 = document.createElement("td");
     td5.innerHTML = "Nachname: ";
     td5.className = "shrink";
     var td6 = document.createElement("td");
-    td6.innerHTML = vorgang.nachname;
+    td6.innerHTML = vorgang.nachname.escapeHTML();
     td6.className = "expand";
     var td7 = document.createElement("td");
     td7.innerHTML = "Vorstellung: ";
@@ -332,19 +332,19 @@ function addVorgangToDOM(liste, vorgang) {
     td1.innerHTML = "E-Mail: ";
     td1.className = "shrink";
     var td2 = document.createElement("td");
-    td2.innerHTML = vorgang.email ? "<a href='mailto:" + vorgang.email + "'>" + vorgang.email + "</a>" : "";
+    td2.innerHTML = vorgang.email ? "<a href='mailto:" + vorgang.email + "'>" + vorgang.email.escapeHTML() + "</a>" : "";
     td2.className = "expand";
     var td3 = document.createElement("td");
     td3.innerHTML = "Telefon: ";
     td3.className = "shrink";
     var td4 = document.createElement("td");
-    td4.innerHTML = vorgang.telefon ? vorgang.telefon : "";
+    td4.innerHTML = vorgang.telefon ? vorgang.telefon.escapeHTML() : "";
     td4.className = "expand";
     var td5 = document.createElement("td");
     td5.innerHTML = "Anschrift: ";
     td5.className = "shrink";
     var td6 = document.createElement("td");
-    td6.innerHTML = vorgang.anschrift ? vorgang.anschrift : "";
+    td6.innerHTML = vorgang.anschrift ? vorgang.anschrift.escapeHTML() : "";
     td6.className = "expand";
     var td7 = document.createElement("td");
     td7.innerHTML = "Preis pro Karte: ";
@@ -412,7 +412,7 @@ function addVorgangToDOM(liste, vorgang) {
     td3.innerHTML = "Kommentar: ";
     td3.className = "shrink";
     var td4 = document.createElement("td");
-    td4.innerHTML = vorgang.kommentar ? vorgang.kommentar : "";
+    td4.innerHTML = vorgang.kommentar ? vorgang.kommentar.escapeHTML() : "";
     td4.colSpan = "5";
     tr.appendChild(td1);
     tr.appendChild(td2);
@@ -441,17 +441,17 @@ function displayVorgang() {
 
         document.getElementById("vorgangNr").innerHTML = selectedVorgang.nummer;
         document.getElementById("vorgangBlackDataInArchive").innerHTML = selectedVorgang.blackDataInArchive ? "Ja" : "Nein";
-        document.getElementById("vorgangVorname").innerHTML = selectedVorgang.vorname ? selectedVorgang.vorname : "";
-        document.getElementById("vorgangNachname").innerHTML = selectedVorgang.nachname ? selectedVorgang.nachname : "";
-        document.getElementById("vorgangEmail").innerHTML = selectedVorgang.email ? selectedVorgang.email : "";
-        document.getElementById("vorgangEmail").href = "mailto:" + (selectedVorgang.email ? selectedVorgang.email : "");
-        document.getElementById("vorgangTel").innerHTML = selectedVorgang.telefon ? selectedVorgang.telefon : "";
+        document.getElementById("vorgangVorname").innerHTML = selectedVorgang.vorname ? selectedVorgang.vorname.escapeHTML() : "";
+        document.getElementById("vorgangNachname").innerHTML = selectedVorgang.nachname ? selectedVorgang.nachname.escapeHTML() : "";
+        document.getElementById("vorgangEmail").innerHTML = selectedVorgang.email ? selectedVorgang.email.escapeHTML() : "";
+        document.getElementById("vorgangEmail").href = "mailto:" + (selectedVorgang.email ? selectedVorgang.email.escapeHTML() : "");
+        document.getElementById("vorgangTel").innerHTML = selectedVorgang.telefon ? selectedVorgang.telefon.escapeHTML() : "";
         document.getElementById("vorgangGesPreis").innerHTML = (selectedVorgang.bezahlart === "VIP" || selectedVorgang.bezahlart === "TripleA") ? "VIP" : selectedVorgang.gesamtpreis.toFixed(2) + "&euro;";
         document.getElementById("vorgangBezahlart").innerHTML = selectedVorgang.bezahlart ? selectedVorgang.bezahlart : "";
         document.getElementById("vorgangBezahlung").innerHTML = selectedVorgang.bezahlung ? selectedVorgang.bezahlung : "";
         document.getElementById("vorgangVersand").innerHTML = selectedVorgang.versandart ? selectedVorgang.versandart : "";
-        document.getElementById("vorgangAnschrift").innerHTML = selectedVorgang.anschrift ? selectedVorgang.anschrift : "";
-        document.getElementById("vorgangKommentar").innerHTML = selectedVorgang.kommentar ? selectedVorgang.kommentar : "";
+        document.getElementById("vorgangAnschrift").innerHTML = selectedVorgang.anschrift ? selectedVorgang.anschrift.escapeHTML() : "";
+        document.getElementById("vorgangKommentar").innerHTML = selectedVorgang.kommentar ? selectedVorgang.kommentar.escapeHTML() : "";
         var vorstellungenString = "";
         for (var i = 0; i < selectedVorgang.vorstellungen.length; i++)
             vorstellungenString += selectedVorgang.vorstellungen[i].date + "&nbsp;&nbsp;" + selectedVorgang.vorstellungen[i].time + (i + 1 === selectedVorgang.vorstellungen.length ? "" : "<br/>");
@@ -468,6 +468,10 @@ function displayVorgang() {
                                 domElement.innerHTML = "Nein";
                             else
                                 domElement.innerHTML = "";
+                            break;
+                        case "string":
+                        case "longString":
+                            domElement.innerHTML = selectedVorgang[additionalField.fieldName] ? selectedVorgang[additionalField.fieldName].escapeHTML() : "";
                             break;
                         default:
                             domElement.innerHTML = selectedVorgang[additionalField.fieldName] ? selectedVorgang[additionalField.fieldName] : "";

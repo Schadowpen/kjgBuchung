@@ -58,8 +58,14 @@
                         <td>Status:</td>
                         <td>
                             <span id="platzStatus"></span>
-                            <button id="platzButtonGesperrt" disabled onclick="onSperrenClick()" style="margin-left: 20px; display: inline-block"> <img src="images/locked.png" class="buttonImage"/> Platz als gesperrt markieren </button>
-                            <button id="platzButtonAnwesend" disabled onclick="onAnwesendClick()" style="margin-left: 20px; display: none">Platz als anwesend markieren</button>
+                            <br/>
+                            <button id="platzButtonSperren" disabled onclick="onPlatzSperrenClick()" style="display: inline-block"> <img src="images/locked.png" class="buttonImage"/> Platz sperren </button>
+                            <button id="platzButtonEntsperren" disabled onclick="onPlatzEntsperrenClick()" style="display: none"> <img src="images/locked.png" class="buttonImage"/> Platz entsperren </button>
+                            <button id="platzButtonAnwesend" disabled onclick="onPlatzAnwesendClick()" style="display: none"> <img src="images/person.png" class="buttonImage"/> Zuschauer anwesend</button>
+                            <button id="platzButtonNichtAnwesend" disabled onclick="onPlatzNichtAnwesendClick()" style="display: none"> <img src="images/noPerson.png" class="buttonImage"/> Zuschauer nicht anwesend</button>
+                            
+                            <button id="platzButtonAlleSperren" disabled onclick="onPlatzAlleSperrenClick()" style="margin-left: 20px; display: inline-block"> <img src="images/locked.png" class="buttonImage"/> Platz für alle Veranstaltungen sperren </button>
+                            <button id="platzButtonAlleEntsperren" disabled onclick="onPlatzAlleEntsperrenClick()" style="margin-left: 20px; display: none"> <img src="images/locked.png" class="buttonImage"/> Platz für alle Veranstaltungen entsperren </button>
                         </td>
                     </tr>
                 </table>
@@ -86,7 +92,7 @@
                                 <td id="vorgangNr"></td>
                             </tr>
                             <tr>
-                                <td>Daten beim archivieren <br/> schwärzen / löschen:</td>
+                                <td>Daten beim archivieren <br/> schw&auml;rzen / l&ouml;schen:</td>
                                 <td id="vorgangBlackDataInArchive"></td>
                             </tr>
                             <tr>

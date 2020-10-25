@@ -90,9 +90,9 @@ function draw() {
 
         // Calculating used variables
         var scaleFactor = canvas.width / veranstaltung.raumBreite;
-        ctx.font = Math.floor(16.0 * supersampling) + "px Times New Roman";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        var sitzInPixel = Math.min(veranstaltung.sitzLaenge, veranstaltung.sitzBreite) * scaleFactor;
+        var fontSize = Math.max(10 * supersampling, Math.min(32 * supersampling, sitzInPixel / 2));
+        ctx.font = Math.floor(fontSize) + "px Times New Roman";
 
         // Maßstab anzeigen
         if (veranstaltung.laengenEinheit != null) {
@@ -115,7 +115,13 @@ function draw() {
             ctx.fillStyle = "black";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
-            ctx.fillText("1 " + veranstaltung.laengenEinheit, 0.5 * scaleFactor, 20);
+            var text = "1 " + veranstaltung.laengenEinheit;
+            if (ctx.measureText(text).width >= scaleFactor) { // don't overshoot left
+                ctx.textAlign = "left";
+                ctx.fillText(text, 0, 20);
+            } else {
+                ctx.fillText(text, 0.5 * scaleFactor, 20);
+            }
         }
 
         // Bereiche anzeigen
@@ -176,7 +182,7 @@ function draw() {
             ctx.fillText(platzGruppenPlaetze[i].reihe + platzGruppenPlaetze[i].platz, 0, 0);
             ctx.restore();
         }
-        
+
         // Overlay anzeigen
         if (typeof drawCanvasOverlay === "function")
             drawCanvasOverlay();

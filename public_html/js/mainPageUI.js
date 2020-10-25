@@ -25,7 +25,7 @@ function initUI() {
         for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
             var additionalField = sitzplan.additionalFieldsForVorgang[i];
             var td1 = document.createElement("td");
-            td1.innerHTML = additionalField.description + ":";
+            td1.innerHTML = additionalField.description.escapeHTML() + ":";
             var td2 = document.createElement("td");
             td2.id = "vorgang" + additionalField.fieldName;
             var tr = document.createElement("tr");
@@ -66,69 +66,112 @@ function onSeatClicked(clickedSeat) {
 }
 
 /**
- * Swaps the seat status between "frei" and "gesperrt"
+ * Sets the seat status to "gesperrt"
  */
-function onSperrenClick() {
+function onPlatzSperrenClick() {
     var selection = getSelectedSeat();
-    if (vorstellungen[selection.dateIndex][selection.seat.ID] != null) {
-        var status = vorstellungen[selection.dateIndex][selection.seat.ID].status;
-    } else {
-        var status = "frei";
-    }
+    document.getElementById("platzButtonSperren").disabled = true;
+    document.getElementById("platzButtonAlleSperren").disabled = true;
+    setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+            vorstellungen[selection.dateIndex].time,
+            selection.seat.block,
+            selection.seat.reihe,
+            selection.seat.platz,
+            "gesperrt",
+            displaySeatInformation);
+}
 
-    if (status === "frei") {
-        document.getElementById("platzButtonGesperrt").disabled = true;
-        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
-                vorstellungen[selection.dateIndex].time,
+/**
+ * Sets the seat status to "frei"
+ */
+function onPlatzEntsperrenClick() {
+    var selection = getSelectedSeat();
+    document.getElementById("platzButtonEntsperren").disabled = true;
+    document.getElementById("platzButtonAlleEntsperren").disabled = true;
+    setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+            vorstellungen[selection.dateIndex].time,
+            selection.seat.block,
+            selection.seat.reihe,
+            selection.seat.platz,
+            "frei",
+            displaySeatInformation);
+}
+
+/**
+ * Sets the seat status to "anwesend"
+ */
+function onPlatzAnwesendClick() {
+    var selection = getSelectedSeat();
+    document.getElementById("platzButtonAnwesend").disabled = true;
+    setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+            vorstellungen[selection.dateIndex].time,
+            selection.seat.block,
+            selection.seat.reihe,
+            selection.seat.platz,
+            "anwesend",
+            displaySeatInformation,
+            vorgang.nummer);
+}
+
+/**
+ * Sets the seat status to "reserviert"/"gebucht", according to Vorgang Bezahlung
+ */
+function onPlatzNichtAnwesendClick() {
+    var selection = getSelectedSeat();
+    document.getElementById("platzButtonNichtAnwesend").disabled = true;
+    setzePlatzStatus(vorstellungen[selection.dateIndex].date,
+            vorstellungen[selection.dateIndex].time,
+            selection.seat.block,
+            selection.seat.reihe,
+            selection.seat.platz,
+            (vorgang.bezahlung == "gebucht" ? "gebucht" : "reserviert"),
+            displaySeatInformation,
+            vorgang.nummer);
+}
+
+/**
+ * Sets the seat status for every vorstellung to "gesperrt"
+ */
+function onPlatzAlleSperrenClick() {
+    var selection = getSelectedSeat();
+    document.getElementById("platzButtonSperren").disabled = true;
+    document.getElementById("platzButtonAlleSperren").disabled = true;
+    var requestsFinished = 0;
+    for (var i = 0; i < vorstellungen.length; i++) {
+        setzePlatzStatus(vorstellungen[i].date,
+                vorstellungen[i].time,
                 selection.seat.block,
                 selection.seat.reihe,
                 selection.seat.platz,
                 "gesperrt",
-                displaySeatInformation);
-    } else if (status === "gesperrt") {
-        document.getElementById("platzButtonGesperrt").disabled = true;
-        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
-                vorstellungen[selection.dateIndex].time,
-                selection.seat.block,
-                selection.seat.reihe,
-                selection.seat.platz,
-                "frei",
-                displaySeatInformation);
+                function () {
+                    requestsFinished++;
+                    if (requestsFinished === vorstellungen.length)
+                        displaySeatInformation();
+                });
     }
 }
 
 /**
- * Swaps the selected seat between "reserviert"/"gebucht" and "anwesend"
+ * Sets the seat status for every vorstellung to "frei"
  */
-function onAnwesendClick() {
+function onPlatzAlleEntsperrenClick() {
     var selection = getSelectedSeat();
-    if (vorstellungen[selection.dateIndex][selection.seat.ID] != null) {
-        var status = vorstellungen[selection.dateIndex][selection.seat.ID].status;
-    } else {
-        var status = "frei";
-    }
-
-    if (status === "reserviert" || status === "gebucht") {
-        document.getElementById("platzButtonAnwesend").disabled = true;
-        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
-                vorstellungen[selection.dateIndex].time,
+    document.getElementById("platzButtonEntsperren").disabled = true;
+    document.getElementById("platzButtonAlleEntsperren").disabled = true;
+    var requestsFinished = 0;
+    for (var i = 0; i < vorstellungen.length; i++) {
+        setzePlatzStatus(vorstellungen[i].date,
+                vorstellungen[i].time,
                 selection.seat.block,
                 selection.seat.reihe,
                 selection.seat.platz,
-                "anwesend",
-                displaySeatInformation,
-                vorgang.nummer);
-    } else if (status === "anwesend") {
-        document.getElementById("platzButtonAnwesend").disabled = true;
-        console.log(selection);
-        setzePlatzStatus(vorstellungen[selection.dateIndex].date,
-                vorstellungen[selection.dateIndex].time,
-                selection.seat.block,
-                selection.seat.reihe,
-                selection.seat.platz,
-                (vorgang.bezahlung == "gebucht" ? "gebucht" : "reserviert"),
-                displaySeatInformation,
-                vorgang.nummer);
+                "frei",
+                function () {
+                    requestsFinished++;
+                    if (requestsFinished === vorstellungen.length)
+                        displaySeatInformation();
+                });
     }
 }
 
@@ -187,35 +230,50 @@ function displaySeatInformation() {
     document.getElementById("platzStatus").innerHTML = status;
 
     // Button für Statusänderung
-    var buttonGesperrt = document.getElementById("platzButtonGesperrt");
-    var buttonGesperrtText = buttonGesperrt.childNodes[buttonGesperrt.childNodes.length - 1];
+    var buttonSperren = document.getElementById("platzButtonSperren");
+    var buttonEntsperren = document.getElementById("platzButtonEntsperren");
     var buttonAnwesend = document.getElementById("platzButtonAnwesend");
-    var buttonAnwesendText = buttonAnwesend.childNodes[buttonAnwesend.childNodes.length - 1];
+    var buttonNichtAnwesend = document.getElementById("platzButtonNichtAnwesend");
+    var buttonAlleSperren = document.getElementById("platzButtonAlleSperren");
+    var buttonAlleEntsperren = document.getElementById("platzButtonAlleEntsperren");
+    buttonSperren.style.display = "none";
+    buttonEntsperren.style.display = "none";
+    buttonAnwesend.style.display = "none";
+    buttonNichtAnwesend.style.display = "none";
+    buttonAlleSperren.style.display = "none";
+    buttonAlleEntsperren.style.display = "none";
+    // alle Sperren?
+    var alleSperrenPossible = true;
+    for (var i = 0; i < vorstellungen.length; i++) {
+        if (vorstellungen[i][selection.seat.ID] != null)
+            var s = vorstellungen[i][selection.seat.ID].status;
+        else
+            var s = "frei";
+        if (s !== "frei" && s !== "gesperrt")
+            alleSperrenPossible = false;
+    }
+    buttonAlleSperren.disabled = !alleSperrenPossible;
+    buttonAlleEntsperren.disabled = !alleSperrenPossible;
+    // Anzeige je nach Status
     switch (status) {
         case "frei":
-            buttonGesperrt.replaceChild(document.createTextNode("Platz als gesperrt markieren"), buttonGesperrtText);
-            buttonGesperrt.disabled = false;
-            buttonGesperrt.style.display = "inline-block";
-            buttonAnwesend.style.display = "none";
+            buttonSperren.disabled = false;
+            buttonSperren.style.display = "inline-block";
+            buttonAlleSperren.style.display = "inline-block";
             break;
         case "gesperrt":
-            buttonGesperrt.replaceChild(document.createTextNode("Sperrung dieses Platzes löschen"), buttonGesperrtText);
-            buttonGesperrt.disabled = false;
-            buttonGesperrt.style.display = "inline-block";
-            buttonAnwesend.style.display = "none";
+            buttonEntsperren.disabled = false;
+            buttonEntsperren.style.display = "inline-block";
+            buttonAlleEntsperren.style.display = "inline-block";
             break;
         case "reserviert":
         case "gebucht":
-            buttonGesperrt.style.display = "none";
-            buttonAnwesend.replaceChild(document.createTextNode("Platz als anwesend markieren"), buttonAnwesendText);
             buttonAnwesend.disabled = false;
             buttonAnwesend.style.display = "inline-block";
             break;
         case "anwesend":
-            buttonGesperrt.style.display = "none";
-            buttonAnwesend.replaceChild(document.createTextNode("Platz nicht mehr als anwesend markieren"), buttonAnwesendText);
-            buttonAnwesend.disabled = false;
-            buttonAnwesend.style.display = "inline-block";
+            buttonNichtAnwesend.disabled = false;
+            buttonNichtAnwesend.style.display = "inline-block";
             break;
     }
 
@@ -228,17 +286,17 @@ function displaySeatInformation() {
         ladeVorgang(vorgangsNr, function () {
             document.getElementById("vorgangNr").innerHTML = vorgang.nummer;
             document.getElementById("vorgangBlackDataInArchive").innerHTML = vorgang.blackDataInArchive ? "Ja" : "Nein";
-            document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname : "";
-            document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname : "";
-            document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email : "";
-            document.getElementById("vorgangEmail").href = "mailto:" + (vorgang.email ? vorgang.email : "");
-            document.getElementById("vorgangTel").innerHTML = vorgang.telefon ? vorgang.telefon : "";
+            document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname.escapeHTML() : "";
+            document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname.escapeHTML() : "";
+            document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email.escapeHTML() : "";
+            document.getElementById("vorgangEmail").href = "mailto:" + (vorgang.email ? vorgang.email.escapeHTML() : "");
+            document.getElementById("vorgangTel").innerHTML = vorgang.telefon ? vorgang.telefon.escapeHTML() : "";
             document.getElementById("vorgangGesPreis").innerHTML = (vorgang.bezahlart === "VIP" || vorgang.bezahlart === "TripleA") ? "VIP" : vorgang.gesamtpreis.toFixed(2) + "&euro;";
             document.getElementById("vorgangBezahlart").innerHTML = vorgang.bezahlart ? vorgang.bezahlart : "";
             document.getElementById("vorgangBezahlung").innerHTML = vorgang.bezahlung ? vorgang.bezahlung : "";
             document.getElementById("vorgangVersand").innerHTML = vorgang.versandart ? vorgang.versandart : "";
-            document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift : "";
-            document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar : "";
+            document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift.escapeHTML() : "";
+            document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar.escapeHTML() : "";
             if (sitzplan.additionalFieldsForVorgang != null) {
                 for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
                     var additionalField = sitzplan.additionalFieldsForVorgang[i];
@@ -251,6 +309,10 @@ function displaySeatInformation() {
                                 domElement.innerHTML = "Nein";
                             else
                                 domElement.innerHTML = "";
+                            break;
+                        case "string":
+                        case "longString":
+                            domElement.innerHTML = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName].escapeHTML() : "";
                             break;
                         default:
                             domElement.innerHTML = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName] : "";

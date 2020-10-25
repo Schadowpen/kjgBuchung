@@ -1,4 +1,4 @@
-/* global apiUrl, urlForVorlageAnsehenPage, urlForKartenVorlageBearbeitenPage, urlForVorlageBearbeitenPage, urlForSitzplanBearbeitenPage */
+/* global apiUrl, urlForVorlageAnsehenPage, urlForKartenVorlageBearbeitenPage, urlForVorlageBearbeitenPage, urlForSitzplanBearbeitenPage, imagesUrl */
 
 /**
  * Daten zur Veranstaltung aus der Datenbank
@@ -99,18 +99,18 @@ function showTemplates() {
     for (var i = 0; i < templateDatabases.length; i++) {
 
         var td1 = document.createElement("td");
-        td1.innerHTML = templateDatabases[i];
+        td1.innerHTML = templateDatabases[i].escapeHTML();
 
         var button1 = document.createElement("button");
-        button1.innerHTML = "Umbenennen";
+        button1.innerHTML = '<img src="' + imagesUrl + '/edit.png" class="buttonImage"/> Umbenennen';
         button1.onclick = onUmbenennenClick;
         umbenennenButtons[i] = button1;
         var button2 = document.createElement("button");
-        button2.innerHTML = "Als aktuelle Veranstaltung erstellen";
+        button2.innerHTML = '<img src="' + imagesUrl + '/moveDatabase.png" class="buttonImage"/> Als aktuelle Veranstaltung erstellen';
         button2.onclick = onAustauschenClick;
         austauschenButtons[i] = button2;
         var button3 = document.createElement("button");
-        button3.innerHTML = "L&ouml;schen";
+        button3.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> L&ouml;schen';
         button3.onclick = onLoeschenClick;
         loeschenButtons[i] = button3;
         var td2 = document.createElement("td");
@@ -119,15 +119,15 @@ function showTemplates() {
         td2.appendChild(button3);
         
         var button4 = document.createElement("button");
-        button4.innerHTML = "Bearbeiten";
+        button4.innerHTML = '<img src="' + imagesUrl + '/edit.png" class="buttonImage"/> Bearbeiten';
         button4.onclick = onBearbeitenClick;
         anzeigenButtons[i] = button4;
         var button5 = document.createElement("button");
-        button5.innerHTML = "Sitzplan bearbeiten";
+        button5.innerHTML = '<img src="' + imagesUrl + '/edit.png" class="buttonImage"/> Sitzplan bearbeiten';
         button5.onclick = onSitzplanBearbeitenClick;
         sitzplanBearbeitenButtons[i] = button5;
         var button6 = document.createElement("button");
-        button6.innerHTML = "Kartenvorlage bearbeiten";
+        button6.innerHTML = '<img src="' + imagesUrl + '/edit.png" class="buttonImage"/> Kartenvorlage bearbeiten';
         button6.onclick = onKartenVorlageBearbeitenClick;
         kartenVorlageBearbeitenButtons[i] = button6;
         td2.appendChild(document.createElement("br"));
@@ -237,7 +237,7 @@ function onAustauschenClick(event) {
     var databaseName = getDatabaseNameForEvent(event, austauschenButtons);
 
     // Bestätigung durch Nutzer
-    var confirmed = window.confirm('Soll die Veranstaltung "' + databaseName +
+    var confirmed = window.confirm('Soll die Veranstaltung "' + databaseName.escapeHTML() +
             '" als aktive Veranstaltung erstellt werden und dafür die aktive Veranstaltung archiviert werden?' +
             '\n\nBitte stelle sicher, dass aktuell niemand anderes an der aktiven Veranstaltung arbeitet!');
     if (!confirmed)
@@ -271,7 +271,7 @@ function onLoeschenClick(event) {
     var databaseName = getDatabaseNameForEvent(event, loeschenButtons);
 
     // Bestätigung durch Nutzer
-    var confirmed = window.confirm('Soll die Veranstaltung "' + databaseName + '" wirklich aus den Vorlagen gelöscht werden?' +
+    var confirmed = window.confirm('Soll die Veranstaltung "' + databaseName.escapeHTML() + '" wirklich aus den Vorlagen gelöscht werden?' +
             '\n\nGelöschte Daten sind nicht wiederherstellbar!');
     if (!confirmed)
         return;
@@ -305,7 +305,7 @@ function onUmbenennenClick(event) {
     var databaseName = getDatabaseNameForEvent(event, umbenennenButtons);
 
     // Bestätigung durch Nutzer
-    var newName = window.prompt('Neuer Name für die Veranstaltung "' + databaseName + '":');
+    var newName = window.prompt('Neuer Name für die Veranstaltung "' + databaseName.escapeHTML() + '":');
     if (newName == null)
         return;
 

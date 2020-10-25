@@ -4,9 +4,6 @@
         <meta charset="UTF-8">
         <title>Positionen in Theaterkarten Vorlage</title>
 
-        <link rel="stylesheet" href="css/kartenConfigUI.css"/>
-        <link rel="stylesheet" href="css/loadingSpinner.css"/>
-
         <script src="js/forge-sha256.min.js"></script>
         <script src="js/mainFunctions.js"></script>
         <script src="js/Matrix.js"></script>
@@ -15,18 +12,21 @@
         <script src="js/kartenConfigUI.js"></script>
         <script src="js/kartenConfigHistory.js"></script>
         <script src="js/userElementsPlacer.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <link rel="stylesheet" href="css/kartenConfigUI.css"/>
+        <link rel="stylesheet" href="css/loadingSpinner.css"/>
     </head>
     <body lang="de">
         <canvas id="canvas" style="background-color: beige"></canvas>
         <div id="tooltip">Test</div>
 
-        <div id="userElements">
+        <div id="userElements" class="uebersicht">
             <button onclick="autoDetectKartenConfig()">Konfiguration zurücksetzen</button>
             <div id="loadingSpinner" class="spinner" style="float: right;"></div>
             <br/>
 
-            <button id="undoKartenConfigButton" onclick="undoKartenConfig()" disabled>Rückgängig</button>
-            <button id="redoKartenConfigButton" onclick="redoKartenConfig()" disabled style="float: right;">Wiederherstellen
+            <button id="undoKartenConfigButton" onclick="undoKartenConfig()" disabled><img src="images/undo.png" class="buttonImage"/> Rückgängig</button>
+            <button id="redoKartenConfigButton" onclick="redoKartenConfig()" disabled style="float: right;"><img src="images/redo.png" class="buttonImage"/> Wiederherstellen
             </button>
 
             <br/><br/>
@@ -110,7 +110,7 @@
                         Schriftgr&ouml;&szlig;e: <input type="number" name="fontSize" step="any" value="12" onchange="changeSitzplanConfig()"/><br/>
                         Sitznummern sichtbar: <input type="checkbox" name="seatNumbersVisible" onchange="changeSitzplanConfig()"/><br/>
                         Linienbreite: <input type="number" name="lineWidth" step="any" value="1" onchange="changeSitzplanConfig()"/><br/>
-                        Eingänge zu einem Pfeil verbinden: <input type="checkbox" name="connectEntranceArrows" onchange="changeSitzplanConfig()"/>
+                        Eingänge zu einem Pfeil verbinden: <input type="checkbox" name="connectEntranceArrows" checked onchange="changeSitzplanConfig()"/>
                     </div>
                     <div class="expander_bottom" onclick="shrinkOrExpandConfig('sitzplanConfig')"></div>
                 </form>
@@ -375,8 +375,8 @@
         </div>
 
         <br/>
-        <button onclick="openDemoWindow()"><b>Live-Vorschau anzeigen</b></button><br/>
-        <button onclick="goToPdfUpload()">Andere Datei als Vorlage hochladen</button><br/>
+        <button onclick="openDemoWindow()"><img src="images/eye.png" class="buttonImage"/> <b>Live-Vorschau anzeigen</b></button><br/>
+        <button onclick="goToPdfUpload()"><img src="images/edit.png" class="buttonImage"/> Andere Datei als Vorlage hochladen</button><br/>
         
         <br/>
         <div>
@@ -384,5 +384,6 @@
         </div>
         
         <script id="errorsAllowed">apiSchluessel = "lrzjkwxcxijgwzjbragkenofadshuizhl";</script>
+        <div id="siteExpander" ></div>
     </body>
 </html>

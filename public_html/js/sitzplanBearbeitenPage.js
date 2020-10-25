@@ -1,4 +1,4 @@
-/* global veranstaltung, bereiche, eingaenge, plaetze, platzGruppen, selectedElement, ctx, canvas, supersampling */
+/* global veranstaltung, bereiche, eingaenge, plaetze, platzGruppen, selectedElement, ctx, canvas, supersampling, imagesUrl */
 
 /**
  * Alle Panels, die jeweils einen Bereich darstellen
@@ -109,6 +109,7 @@ function renderBereich(index) {
 
     bereichPanel.xPos = document.createElement("input");
     bereichPanel.xPos.type = "number";
+    bereichPanel.xPos.step = "any";
     bereichPanel.xPos.onchange = function () {
         var xPos = parseFloat(bereichPanel.xPos.value);
         if (isNaN(xPos))
@@ -120,6 +121,7 @@ function renderBereich(index) {
 
     bereichPanel.yPos = document.createElement("input");
     bereichPanel.yPos.type = "number";
+    bereichPanel.yPos.step = "any";
     bereichPanel.yPos.onchange = function () {
         var yPos = parseFloat(bereichPanel.yPos.value);
         if (isNaN(yPos))
@@ -131,6 +133,7 @@ function renderBereich(index) {
 
     bereichPanel.breite = document.createElement("input");
     bereichPanel.breite.type = "number";
+    bereichPanel.breite.step = "any";
     bereichPanel.breite.onchange = function () {
         var breite = parseFloat(bereichPanel.breite.value);
         if (isNaN(breite))
@@ -142,6 +145,7 @@ function renderBereich(index) {
 
     bereichPanel.laenge = document.createElement("input");
     bereichPanel.laenge.type = "number";
+    bereichPanel.laenge.step = "any";
     bereichPanel.laenge.onchange = function () {
         var laenge = parseFloat(bereichPanel.laenge.value);
         if (isNaN(laenge))
@@ -171,6 +175,7 @@ function renderBereich(index) {
 
     bereichPanel.textXPos = document.createElement("input");
     bereichPanel.textXPos.type = "number";
+    bereichPanel.textXPos.step = "any";
     bereichPanel.textXPos.onchange = function () {
         var textXPos = parseFloat(bereichPanel.textXPos.value);
         if (isNaN(textXPos))
@@ -182,6 +187,7 @@ function renderBereich(index) {
 
     bereichPanel.textYPos = document.createElement("input");
     bereichPanel.textYPos.type = "number";
+    bereichPanel.textYPos.step = "any";
     bereichPanel.textYPos.onchange = function () {
         var textYPos = parseFloat(bereichPanel.textYPos.value);
         if (isNaN(textYPos))
@@ -201,7 +207,7 @@ function renderBereich(index) {
     tbody.appendChild(renderSingleValue("Text Farbe:", bereichPanel.textFarbe));
 
     var deleteButton = document.createElement("button");
-    deleteButton.innerHTML = "Löschen";
+    deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
     deleteButton.onclick = function () {
         loescheBereich(bereich.id);
     };
@@ -233,6 +239,7 @@ function renderEingang(index) {
 
     eingangPanel.x0 = document.createElement("input");
     eingangPanel.x0.type = "number";
+    eingangPanel.x0.step = "any";
     eingangPanel.x0.onchange = function () {
         var x0 = parseFloat(eingangPanel.x0.value);
         if (isNaN(x0))
@@ -244,6 +251,7 @@ function renderEingang(index) {
 
     eingangPanel.y0 = document.createElement("input");
     eingangPanel.y0.type = "number";
+    eingangPanel.y0.step = "any";
     eingangPanel.y0.onchange = function () {
         var y0 = parseFloat(eingangPanel.y0.value);
         if (isNaN(y0))
@@ -255,6 +263,7 @@ function renderEingang(index) {
 
     eingangPanel.x1 = document.createElement("input");
     eingangPanel.x1.type = "number";
+    eingangPanel.x1.step = "any";
     eingangPanel.x1.onchange = function () {
         var x1 = parseFloat(eingangPanel.x1.value);
         if (isNaN(x1))
@@ -266,6 +275,7 @@ function renderEingang(index) {
 
     eingangPanel.y1 = document.createElement("input");
     eingangPanel.y1.type = "number";
+    eingangPanel.y1.step = "any";
     eingangPanel.y1.onchange = function () {
         var y1 = parseFloat(eingangPanel.y1.value);
         if (isNaN(y1))
@@ -277,6 +287,7 @@ function renderEingang(index) {
 
     eingangPanel.x2 = document.createElement("input");
     eingangPanel.x2.type = "number";
+    eingangPanel.x2.step = "any";
     eingangPanel.x2.onchange = function () {
         var x2 = parseFloat(eingangPanel.x2.value);
         if (isNaN(x2))
@@ -288,6 +299,7 @@ function renderEingang(index) {
 
     eingangPanel.y2 = document.createElement("input");
     eingangPanel.y2.type = "number";
+    eingangPanel.y2.step = "any";
     eingangPanel.y2.onchange = function () {
         var y2 = parseFloat(eingangPanel.y2.value);
         if (isNaN(y2))
@@ -299,6 +311,7 @@ function renderEingang(index) {
 
     eingangPanel.x3 = document.createElement("input");
     eingangPanel.x3.type = "number";
+    eingangPanel.x3.step = "any";
     eingangPanel.x3.onchange = function () {
         var x3 = parseFloat(eingangPanel.x3.value);
         if (isNaN(x3))
@@ -310,6 +323,7 @@ function renderEingang(index) {
 
     eingangPanel.y3 = document.createElement("input");
     eingangPanel.y3.type = "number";
+    eingangPanel.y3.step = "any";
     eingangPanel.y3.onchange = function () {
         var y3 = parseFloat(eingangPanel.y3.value);
         if (isNaN(y3))
@@ -330,6 +344,7 @@ function renderEingang(index) {
 
     eingangPanel.textXPos = document.createElement("input");
     eingangPanel.textXPos.type = "number";
+    eingangPanel.textXPos.step = "any";
     eingangPanel.textXPos.onchange = function () {
         var textXPos = parseFloat(eingangPanel.textXPos.value);
         if (isNaN(textXPos))
@@ -341,6 +356,7 @@ function renderEingang(index) {
 
     eingangPanel.textYPos = document.createElement("input");
     eingangPanel.textYPos.type = "number";
+    eingangPanel.textYPos.step = "any";
     eingangPanel.textYPos.onchange = function () {
         var textYPos = parseFloat(eingangPanel.textYPos.value);
         if (isNaN(textYPos))
@@ -368,7 +384,7 @@ function renderEingang(index) {
         });
     };
     var buttonImage = document.createElement("img");
-    buttonImage.src = "images/edit.png";
+    buttonImage.src = imagesUrl + "edit.png";
     buttonImage.className = "buttonImage";
     eingangPanel.eingangButton.appendChild(buttonImage);
     var eingangDiv = document.createElement("div");
@@ -378,7 +394,7 @@ function renderEingang(index) {
     tbody.appendChild(renderSingleValue("Eingang ID:", eingangDiv));
 
     var deleteButton = document.createElement("button");
-    deleteButton.innerHTML = "Löschen";
+    deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
     deleteButton.onclick = function () {
         loescheEingang(eingang.id);
     };
@@ -455,6 +471,7 @@ function renderPlatz(index) {
 
     platzPanel.xPos = document.createElement("input");
     platzPanel.xPos.type = "number";
+    platzPanel.xPos.step = "any";
     platzPanel.xPos.onchange = function () {
         var oldPlatz = Object.assign({}, platz);
         var xPos = parseFloat(platzPanel.xPos.value);
@@ -467,6 +484,7 @@ function renderPlatz(index) {
 
     platzPanel.yPos = document.createElement("input");
     platzPanel.yPos.type = "number";
+    platzPanel.yPos.step = "any";
     platzPanel.yPos.onchange = function () {
         var oldPlatz = Object.assign({}, platz);
         var yPos = parseFloat(platzPanel.yPos.value);
@@ -479,6 +497,7 @@ function renderPlatz(index) {
 
     platzPanel.rotation = document.createElement("input");
     platzPanel.rotation.type = "number";
+    platzPanel.rotation.step = "any";
     platzPanel.rotation.onchange = function () {
         var oldPlatz = Object.assign({}, platz);
         var rotation = parseFloat(platzPanel.rotation.value);
@@ -509,7 +528,7 @@ function renderPlatz(index) {
         });
     };
     var buttonImage = document.createElement("img");
-    buttonImage.src = "images/edit.png";
+    buttonImage.src = imagesUrl + "edit.png";
     buttonImage.className = "buttonImage";
     platzPanel.eingangButton.appendChild(buttonImage);
     var eingangDiv = document.createElement("div");
@@ -519,7 +538,7 @@ function renderPlatz(index) {
     tbody.appendChild(renderSingleValue("Eingang ID:", eingangDiv));
 
     var deleteButton = document.createElement("button");
-    deleteButton.innerHTML = "Löschen";
+    deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
     deleteButton.onclick = function () {
         loeschePlatz(platz.block, platz.reihe, platz.platz);
     };
@@ -589,6 +608,7 @@ function renderPlatzGruppe(index) {
 
     platzGruppenPanel.reiheAbstand = document.createElement("input");
     platzGruppenPanel.reiheAbstand.type = "number";
+    platzGruppenPanel.reiheAbstand.step = "any";
     platzGruppenPanel.reiheAbstand.onchange = function () {
         var reiheAbstand = parseFloat(platzGruppenPanel.reiheAbstand.value);
         if (isNaN(reiheAbstand))
@@ -622,6 +642,7 @@ function renderPlatzGruppe(index) {
 
     platzGruppenPanel.platzAbstand = document.createElement("input");
     platzGruppenPanel.platzAbstand.type = "number";
+    platzGruppenPanel.platzAbstand.step = "any";
     platzGruppenPanel.platzAbstand.onchange = function () {
         var platzAbstand = parseFloat(platzGruppenPanel.platzAbstand.value);
         if (isNaN(platzAbstand))
@@ -633,6 +654,7 @@ function renderPlatzGruppe(index) {
 
     platzGruppenPanel.xPos = document.createElement("input");
     platzGruppenPanel.xPos.type = "number";
+    platzGruppenPanel.xPos.step = "any";
     platzGruppenPanel.xPos.onchange = function () {
         var xPos = parseFloat(platzGruppenPanel.xPos.value);
         if (isNaN(xPos))
@@ -644,6 +666,7 @@ function renderPlatzGruppe(index) {
 
     platzGruppenPanel.yPos = document.createElement("input");
     platzGruppenPanel.yPos.type = "number";
+    platzGruppenPanel.yPos.step = "any";
     platzGruppenPanel.yPos.onchange = function () {
         var yPos = parseFloat(platzGruppenPanel.yPos.value);
         if (isNaN(yPos))
@@ -655,6 +678,7 @@ function renderPlatzGruppe(index) {
 
     platzGruppenPanel.rotation = document.createElement("input");
     platzGruppenPanel.rotation.type = "number";
+    platzGruppenPanel.rotation.step = "any";
     platzGruppenPanel.rotation.onchange = function () {
         var rotation = parseFloat(platzGruppenPanel.rotation.value);
         if (isNaN(rotation))
@@ -682,7 +706,7 @@ function renderPlatzGruppe(index) {
         });
     };
     var buttonImage = document.createElement("img");
-    buttonImage.src = "images/edit.png";
+    buttonImage.src = imagesUrl + "edit.png";
     buttonImage.className = "buttonImage";
     platzGruppenPanel.eingangButton.appendChild(buttonImage);
     var eingangDiv = document.createElement("div");
@@ -692,14 +716,14 @@ function renderPlatzGruppe(index) {
     tbody.appendChild(renderSingleValue("Eingang ID:", eingangDiv));
 
     var splitButton = document.createElement("button");
-    splitButton.innerHTML = "In Plätze aufsplitten";
+    splitButton.innerHTML = '<img src="' + imagesUrl + '/split.png" class="buttonImage"/> In Plätze aufsplitten';
     splitButton.onclick = function () {
         splitPlatzGruppe(platzGruppe.id);
     };
     tbody.appendChild(renderButton(splitButton));
 
     var deleteButton = document.createElement("button");
-    deleteButton.innerHTML = "Löschen";
+    deleteButton.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> Löschen';
     deleteButton.onclick = function () {
         loeschePlatzGruppe(platzGruppe.id);
     };
@@ -718,7 +742,7 @@ function renderPlatzGruppe(index) {
  */
 function renderSingleValue(text, inputElement) {
     var td1 = document.createElement("td");
-    td1.innerHTML = text;
+    td1.innerHTML = text.escapeHTML();
     var td2 = document.createElement("td");
     td2.appendChild(inputElement);
     var tr = document.createElement("tr");

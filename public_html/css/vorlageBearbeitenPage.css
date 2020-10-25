@@ -17,8 +17,8 @@
     margin: 3px;
     padding: 3px;
 }
-.defaultFieldsForVorgangTable thead {
-    font-weight: bold;
+.defaultFieldsForVorgangTable thead td {
+    font-weight: bold !important;
 }
 #additionalFieldsForVorgangDiv table td,
 .defaultFieldsForVorgangTable td, 

@@ -1,4 +1,4 @@
-/* global initUI, loadUI, apiUrl, loadCanvas, renderUI, draw */
+/* global initUI, loadUI, apiUrl, loadCanvas, renderUI, draw, urlForVorlagen */
 
 /**
  * This scipt provides loading, accessing and editing of background data
@@ -67,7 +67,7 @@ window.addEventListener('load', function () {
     var queryObj = parseQueryString(queryString);
     databaseName = queryObj.database;
     if (databaseName == null) {
-        window.alert("Name der Vorlage nicht in den URL-Parametern angegeben. Öffne diese Seite besser von der Übersichtsseite aus!");
+        location.href = urlForVorlagen;
         return;
     }
 
@@ -257,7 +257,7 @@ function calculatePlaetzeFromPlatzGruppen() {
                     reihen.push(String.fromCharCode(c));
             }
         } else {
-            for (var c = reiheVorneCharCode; c <= reiheHintenCharCode; c--) {
+            for (var c = reiheVorneCharCode; c >= reiheHintenCharCode; c--) {
                 if (c !== charCodeJ)
                     reihen.push(String.fromCharCode(c));
             }

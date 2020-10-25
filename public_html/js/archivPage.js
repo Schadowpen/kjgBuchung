@@ -1,4 +1,4 @@
-/* global apiUrl, urlForArchivAnsehenPage */
+/* global apiUrl, urlForArchivAnsehenPage, imagesUrl */
 
 /**
  * Daten zur Veranstaltung aus der Datenbank
@@ -109,18 +109,18 @@ function showArchives() {
         var databaseInfo = extractArchivedDatabase(archivedDatabases[i]);
 
         var td1 = document.createElement("td");
-        td1.innerHTML = databaseInfo.name;
+        td1.innerHTML = databaseInfo.name.escapeHTML();
 
         var button1 = document.createElement("button");
-        button1.innerHTML = "Anzeigen";
+        button1.innerHTML = '<img src="' + imagesUrl + '/eye.png" class="buttonImage"/> Anzeigen';
         button1.onclick = onAnzeigenClick;
         anzeigenButtons[i] = button1;
         var button2 = document.createElement("button");
-        button2.innerHTML = "Als aktuelle Veranstaltung laden";
+        button2.innerHTML = '<img src="' + imagesUrl + '/moveDatabase.png" class="buttonImage"/> Als aktuelle Veranstaltung laden';
         button2.onclick = onAustauschenClick;
         austauschenButtons[i] = button2;
         var button3 = document.createElement("button");
-        button3.innerHTML = "L&ouml;schen";
+        button3.innerHTML = '<img src="' + imagesUrl + '/bin.png" class="buttonImage"/> L&ouml;schen';
         button3.onclick = onLoeschenClick;
         loeschenButtons[i] = button3;
         var td3 = document.createElement("td");
@@ -293,12 +293,12 @@ function onAustauschenClick(event) {
     var databaseInfo = extractArchivedDatabase(databaseName);
     var confirmed = false;
     if (databaseInfo.isSecurityCopy) {
-        confirmed = window.confirm('Soll die Sicherungskopie für "' + databaseInfo.name + '" vom ' + databaseInfo.date.toLocaleString() +
+        confirmed = window.confirm('Soll die Sicherungskopie für "' + databaseInfo.name.escapeHTML() + '" vom ' + databaseInfo.date.toLocaleString() +
                 ' geladen werden und dafür die Veranstaltung "' + veranstaltung.veranstaltung + '" archiviert werden?' + 
                 '\n\nBitte stelle sicher, dass aktuell niemand anderes an der Veranstaltung arbeitet!');
     } else {
-        confirmed = window.confirm('Soll die Veranstaltung "' + databaseInfo.name + 
-                '" geladen werden und dafür die Veranstaltung "' + veranstaltung.veranstaltung + '" archiviert werden?' + 
+        confirmed = window.confirm('Soll die Veranstaltung "' + databaseInfo.name.escapeHTML() + 
+                '" geladen werden und dafür die Veranstaltung "' + veranstaltung.veranstaltung.escapeHTML() + '" archiviert werden?' + 
                 '\n\nBitte stelle sicher, dass aktuell niemand anderes an der Veranstaltung arbeitet!');
     }
     if (!confirmed)
@@ -335,10 +335,10 @@ function onLoeschenClick(event) {
     var databaseInfo = extractArchivedDatabase(databaseName);
     var confirmed = false;
     if (databaseInfo.isSecurityCopy) {
-        confirmed = window.confirm('Soll die Sicherungskopie für "' + databaseInfo.name + '" vom ' + databaseInfo.date.toLocaleString() + ' wirklich gelöscht werden?'+
+        confirmed = window.confirm('Soll die Sicherungskopie für "' + databaseInfo.name.escapeHTML() + '" vom ' + databaseInfo.date.toLocaleString() + ' wirklich gelöscht werden?'+
                 '\n\nGelöschte Daten sind nicht wiederherstellbar!');
     } else {
-        confirmed = window.confirm('Soll die Veranstaltung "' + databaseName + '" wirklich aus dem Archiv gelöscht werden?'+
+        confirmed = window.confirm('Soll die Veranstaltung "' + databaseName.escapeHTML() + '" wirklich aus dem Archiv gelöscht werden?'+
                 '\n\nGelöschte Daten sind nicht wiederherstellbar!');
     }
     if (!confirmed)

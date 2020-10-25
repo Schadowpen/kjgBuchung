@@ -62,7 +62,7 @@ function initUI() {
         for (i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
             var additionalField = sitzplan.additionalFieldsForVorgang[i];
             var td1 = document.createElement("td");
-            td1.innerHTML = additionalField.description + ":";
+            td1.innerHTML = additionalField.description.escapeHTML() + ":";
             var input;
             switch (additionalField.type) {
                 case "integer":
@@ -574,9 +574,9 @@ function displaySeatsInformation() {
         var td1 = document.createElement("td");
         td1.innerHTML = vorstellungen[selection.dateIndex].date + " " + vorstellungen[selection.dateIndex].time;
         var td2 = document.createElement("td");
-        td2.innerHTML = selection.seat.block;
+        td2.innerHTML = selection.seat.block.escapeHTML();
         var td3 = document.createElement("td");
-        td3.innerHTML = selection.seat.reihe;
+        td3.innerHTML = selection.seat.reihe.escapeHTML();
         var td4 = document.createElement("td");
         td4.innerHTML = selection.seat.platz;
 

@@ -79,54 +79,76 @@ window.addEventListener("load", function () {
                 td.innerHTML = gesamt.gezahlteEinnahmen.toFixed(2) + "&euro; + " + uebersicht.postGezahlteEinnahmen.toFixed(2) + "&euro; Post";
                 tr.appendChild(td);
 
+                var td = document.createElement("td");
+                var button = document.createElement("button");
+                button.innerHTML = "Zuschauerliste";
+                button.onclick = function () {
+                    window.location.href = apiUrl + "getViewersXlsx.php" + "?key=" + getKey();
+                };
+                td.appendChild(button);
+                tr.appendChild(td);
+
                 tbody.appendChild(tr);
 
 
                 // Einzelübersicht
                 var tbody = document.getElementById("einzel");
                 for (var i = 0; i < uebersicht.data.length; i++) {
-                    var tr = document.createElement("tr");
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].date + "  " + uebersicht.data[i].time;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].verfuegbar;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].verfuegbar - uebersicht.data[i].reserviert - uebersicht.data[i].gebucht - uebersicht.data[i].VIP - uebersicht.data[i].TripleA;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].reserviert;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].gebucht;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].VIP;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].TripleA;
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].einnahmen.toFixed(2) + "&euro;";
-                    tr.appendChild(td);
-
-                    var td = document.createElement("td");
-                    td.innerHTML = uebersicht.data[i].gezahlteEinnahmen.toFixed(2) + "&euro;";
-                    tr.appendChild(td);
-
-                    tbody.appendChild(tr);
+                    tbody.appendChild(renderSingleVeranstaltung(uebersicht.data[i]));
                 }
             }
         };
         xmlHttp.send(null);
     }
 });
+
+function renderSingleVeranstaltung(data) {
+    var tr = document.createElement("tr");
+
+    var td = document.createElement("td");
+    td.innerHTML = data.date + "  " + data.time;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.verfuegbar;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.verfuegbar - data.reserviert - data.gebucht - data.VIP - data.TripleA;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.reserviert;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.gebucht;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.VIP;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.TripleA;
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.einnahmen.toFixed(2) + "&euro;";
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    td.innerHTML = data.gezahlteEinnahmen.toFixed(2) + "&euro;";
+    tr.appendChild(td);
+
+    var td = document.createElement("td");
+    var button = document.createElement("button");
+    button.innerHTML = "Zuschauerliste";
+    button.onclick = function () {
+        window.location.href = apiUrl + "getViewersXlsx.php" + "?date=" + data.date + "&time=" + data.time + "&key=" + getKey();
+    };
+    td.appendChild(button);
+    tr.appendChild(td);
+
+    return tr;
+}

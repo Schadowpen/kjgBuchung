@@ -1,13 +1,15 @@
 /* global apiSchluessel */
 
-var apiUrl = "http://localhost:8000/";
-var imagesUrl = "images/";
-var htmlFilesUrl = "html/";
-var urlForVorgangPage = "vorgang.html"; //"https://kjg-theater.de/login/vorgang/";
-var urlForArchivAnsehenPage = "archivAnsehen.html";
-var urlForVorlageBearbeitenPage = "vorlageBearbeiten.html";
-var urlForSitzplanBearbeitenPage = "sitzplanBearbeiten.html";
-var urlForKartenVorlageBearbeitenPage = "kartenConfigEditor.html";
+var apiUrl = "http://localhost:8000/"; // "https://kjg-theater.de/custom-code/api/";
+var imagesUrl = "images/"; // "https://kjg-theater.de/custom-code/images/";
+var htmlFilesUrl = "html/"; // "https://kjg-theater.de/custom-code/html/";
+var urlForVorgangPage = "vorgang.html"; // "https://kjg-theater.de/login/vorgang/";
+var urlForArchiv = "archiv.html"; // "https://kjg-theater.de/login/archiv/"
+var urlForArchivAnsehenPage = "archivAnsehen.html"; // "https://kjg-theater.de/login/archiv/archiv-ansehen/";
+var urlForVorlagen = "template.html"; // "https://kjg-theater.de/login/vorlagen/"
+var urlForVorlageBearbeitenPage = "vorlageBearbeiten.html"; // "https://kjg-theater.de/login/vorlagen/vorlage-bearbeiten/";
+var urlForSitzplanBearbeitenPage = "sitzplanBearbeiten.html"; // "https://kjg-theater.de/login/vorlagen/sitzplan-bearbeiten/";
+var urlForKartenVorlageBearbeitenPage = "kartenConfigEditor.html"; // "https://kjg-theater.de/login/vorlagen/karte-bearbeiten/";
 
 // Cross browser support
 if (!String.prototype.startsWith) {
@@ -55,10 +57,10 @@ window.onerror = function (meldung, url, zeile, spalte, errorObj) {
 function reportError(fehlerinformation) {
     var mail = "mailto:philipp.horwat@t-online.de?subject=Fehlerbericht kjg Webseite&body=";
     var body = "Fehlerbericht vom " + new Date().toLocaleString() + "\n\n";
-    body += fehlerinformation;
-    body += "Genutzter Webbrowser:\n\n\n";
     body += "Beschreibung des Fehlers:\n\n\n";
     body += "Wie der Fehler reproduziert werden kann:\n\n\n";
+    body += "Genutzter Webbrowser:\n\n\n";
+    body += fehlerinformation;
     body += "Informationen des Browsers:\n";
     body += "AppName: " + navigator.appName + "\n";
     body += "UserAgent: " + navigator.userAgent + "\n";
@@ -266,3 +268,19 @@ function getKey() {
     key += new Date().toISOString().substring(0, 16);
     return forge_sha256(key);
 }
+
+
+String.prototype.escapeHTML = function() {
+    var tagsToReplace = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;',
+        '\n': '<br/>'
+    };
+    return this.replace(/[&<>"'\/\n]/g, function(tag) {
+        return tagsToReplace[tag] || tag;
+    });
+};

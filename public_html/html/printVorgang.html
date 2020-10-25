@@ -48,12 +48,12 @@
         <script>
             function druckeVorgang(nummer) {
                 document.getElementById("vorgangNr").innerHTML = nummer;
-                
+
                 ladeVorgang(nummer, function () {
                     loadingComplete();
                 });
             }
-            
+
             function loadUI() {
                 objectsToLoad += 1;
             }
@@ -104,11 +104,13 @@
 
 
             function displayVorgangInformation() {
+                // default data
                 document.getElementById("vorgangNr").innerHTML = vorgang.nummer >= 0 ? vorgang.nummer : "Noch nicht gespeichert";
-                document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname : "";
-                document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname : "";
-                document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email : "";
-                document.getElementById("vorgangTel").innerHTML = vorgang.telefon ? vorgang.telefon : "";
+                document.getElementById("vorgangBlackDataInArchive").innerHTML = vorgang.blackDataInArchive ? "Ja" : "Nein";
+                document.getElementById("vorgangVorname").innerHTML = vorgang.vorname ? vorgang.vorname.escapeHTML() : "";
+                document.getElementById("vorgangNachname").innerHTML = vorgang.nachname ? vorgang.nachname.escapeHTML() : "";
+                document.getElementById("vorgangEmail").innerHTML = vorgang.email ? vorgang.email.escapeHTML() : "";
+                document.getElementById("vorgangTel").innerHTML = vorgang.telefon ? vorgang.telefon.escapeHTML() : "";
                 if (vorgang.bezahlart === "VIP" || vorgang.bezahlart === "TripleA") {
                     document.getElementById("vorgangPreisIsVIP").style.display = "block";
                     document.getElementById("vorgangPreisNoVIP").style.display = "none";
@@ -121,9 +123,44 @@
                 document.getElementById("vorgangBezahlart").value = vorgang.bezahlart ? vorgang.bezahlart : "Bar";
                 document.getElementById("vorgangBezahlung").value = vorgang.bezahlung ? vorgang.bezahlung : "offen";
                 document.getElementById("vorgangVersand").value = vorgang.versandart ? vorgang.versandart : "Abholung";
-                document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift : "";
-                document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar : "";
+                document.getElementById("vorgangAnschrift").innerHTML = vorgang.anschrift ? vorgang.anschrift.escapeHTML() : "";
+                document.getElementById("vorgangKommentar").innerHTML = vorgang.kommentar ? vorgang.kommentar.escapeHTML() : "";
+                
+                // additional fields
+                if (sitzplan.additionalFieldsForVorgang != null) {
+                    var vorgangTable = document.getElementById("vorgangTable");
+                    for (var i = 0; i < sitzplan.additionalFieldsForVorgang.length; i++) {
+                        // add field
+                        var additionalField = sitzplan.additionalFieldsForVorgang[i];
+                        var td1 = document.createElement("td");
+                        td1.innerHTML = additionalField.description.escapeHTML() + ":";
+                        var td2 = document.createElement("td");
+                        td2.id = "vorgang" + additionalField.fieldName;
+                        var tr = document.createElement("tr");
+                        tr.appendChild(td1);
+                        tr.appendChild(td2);
+                        vorgangTable.appendChild(tr);
 
+                        // fill field
+                        switch (additionalField.type) {
+                            case "boolean":
+                                if (vorgang[additionalField.fieldName] === true)
+                                    td2.innerHTML = "Ja";
+                                else if (vorgang[additionalField.fieldName] === false)
+                                    td2.innerHTML = "Nein";
+                                else
+                                    td2.innerHTML = "";
+                                break;
+                            case "string":
+                            case "longString":
+                                td2.innerHTML = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName].escapeHTML() : "";
+                                break;
+                            default:
+                                td2.innerHTML = vorgang[additionalField.fieldName] ? vorgang[additionalField.fieldName] : "";
+                                break;
+                        }
+                    }
+                }
             }
         </script>
     </head>
@@ -149,72 +186,78 @@
         <div class="uebersicht" >
             <h3>Vorgang &Uuml;bersicht</h3>
             <table>
-                <tr>
-                    <td>Nummer:</td>
-                    <td id="vorgangNr"></td>
-                </tr>
-                <tr>
-                    <td>Vorname:</td>
-                    <td id="vorgangVorname"></td>
-                </tr>
-                <tr>
-                    <td>Nachname:</td>
-                    <td id="vorgangNachname" ></td>
-                </tr>
-                <tr>
-                    <td>E-Mail:</td>
-                    <td id="vorgangEmail" ></td>
-                </tr>
-                <tr>
-                    <td>Telefon:</td>
-                    <td id="vorgangTel"></td>
-                </tr>
-                <tr>
-                    <td>Einzelpreis</td>
-                    <td> 
-                        <span id="vorgangPreisNoVIP"></span>
-                        <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Gesamtpreis:</td>
-                    <td id="vorgangGesPreis"></td>
-                </tr>
-                <tr>
-                    <td>Bezahlart:</td>
-                    <td> <select id="vorgangBezahlart" disabled >
-                            <option value="Bar">Bar</option>
-                            <option value="Ueberweisung">&Uuml;berweisung</option>
-                            <option value="PayPal">PayPal</option>
-                            <option value="Abendkasse">Abendkasse</option>
-                            <option value="VIP">VIP</option>
-							<option value="TripleA">Triple A</option>
-                        </select></td>
-                </tr>
-                <tr>
-                    <td>Bezahlt:</td>
-                    <td> <select id="vorgangBezahlung" disabled >
-                            <option value="offen">offen</option>
-                            <option value="bezahlt">bezahlt</option>
-                            <option value="Abendkasse">bezahlt an der Abendkasse</option>
-                        </select></td>
-                </tr>
-                <tr>
-                    <td>Versandart:</td>
-                    <td> <select id="vorgangVersand" disabled >
-                            <option value="Abholung">Abholung</option>
-							<option value="E-Mail">E-Mail</option>
-                            <option value="Post">Post</option>
-                        </select></td>
-                </tr>
-                <tr>
-                    <td>Anschrift:</td>
-                    <td id="vorgangAnschrift"></td>
-                </tr>
-                <tr>
-                    <td>Kommentar:</td>
-                    <td id="vorgangKommentar" ></td>
-                </tr>
+                <tbody id="vorgangTable">
+                    <tr>
+                        <td>Nummer:</td>
+                        <td id="vorgangNr"></td>
+                    </tr>
+                    <tr>
+                        <td>Daten beim archivieren <br/> schw&auml;rzen / l&ouml;schen:</td>
+                        <td id="vorgangBlackDataInArchive"></td>
+                    </tr>
+                    <tr>
+                        <td>Vorname:</td>
+                        <td id="vorgangVorname"></td>
+                    </tr>
+                    <tr>
+                        <td>Nachname:</td>
+                        <td id="vorgangNachname" ></td>
+                    </tr>
+                    <tr>
+                        <td>E-Mail:</td>
+                        <td id="vorgangEmail" ></td>
+                    </tr>
+                    <tr>
+                        <td>Telefon:</td>
+                        <td id="vorgangTel"></td>
+                    </tr>
+                    <tr>
+                        <td>Einzelpreis</td>
+                        <td> 
+                            <span id="vorgangPreisNoVIP"></span>
+                            <span id="vorgangPreisIsVIP" style="display: none;">VIP</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Gesamtpreis:</td>
+                        <td id="vorgangGesPreis"></td>
+                    </tr>
+                    <tr>
+                        <td>Bezahlart:</td>
+                        <td> <select id="vorgangBezahlart" disabled >
+                                <option value="Bar">Bar</option>
+                                <option value="Ueberweisung">&Uuml;berweisung</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="Abendkasse">Abendkasse</option>
+                                <option value="VIP">VIP</option>
+                                <option value="TripleA">Triple A</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Bezahlt:</td>
+                        <td> <select id="vorgangBezahlung" disabled >
+                                <option value="offen">offen</option>
+                                <option value="bezahlt">bezahlt</option>
+                                <option value="Abendkasse">bezahlt an der Abendkasse</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Versandart:</td>
+                        <td> <select id="vorgangVersand" disabled >
+                                <option value="Abholung">Abholung</option>
+                                <option value="E-Mail">E-Mail</option>
+                                <option value="Post">Post</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <td>Anschrift:</td>
+                        <td id="vorgangAnschrift"></td>
+                    </tr>
+                    <tr>
+                        <td>Kommentar:</td>
+                        <td id="vorgangKommentar" ></td>
+                    </tr>
+                </tbody>
             </table>
         </div>
         <div id="debug" ></div>
