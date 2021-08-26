@@ -11,3 +11,5 @@ Als Entwicklungsumgebung wird NetBeans empfohlen
 
 # TODO
 - Herunterladen der Excel-Dateien auch für Archive
+- Genauere Warnung, wenn Eingaben die Theaterkarten verändern würden (aktuell wird bei allen Änderungen gewarnt, auch z.B. bei Adresse wo faktisch keine Änderungen an den Karten gemacht werden)
+- Zurück-Button auf Vorgangs-Seite
