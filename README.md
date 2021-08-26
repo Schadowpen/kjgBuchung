@@ -1,6 +1,7 @@
 # About
 Dies ist das Frontend des KjG Theater Ticketing Systems.
-Das Backend befindet sich unter https://github.com/Schadowpen/kjgDatabaseAPI
+Das Backend befindet sich unter https://github.com/Schadowpen/kjgDatabaseAPI.
+Software um einen QR- und Barcode- Scanner anzusprechen befindet sich unter https://github.com/Schadowpen/kjgBuchungScanner.
 
 Es ist geplant, das Projekt als WordPress-Plugin komplett neu zu schreiben.
 
