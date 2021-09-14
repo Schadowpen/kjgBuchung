@@ -14,3 +14,4 @@ Als Entwicklungsumgebung wird NetBeans empfohlen
 - Herunterladen der Excel-Dateien auch für Archive
 - Genauere Warnung, wenn Eingaben die Theaterkarten verändern würden (aktuell wird bei allen Änderungen gewarnt, auch z.B. bei Adresse wo faktisch keine Änderungen an den Karten gemacht werden)
 - Zurück-Button auf Vorgangs-Seite
+- Bessere E-Mail bei Fehlern, die den Nutzer dazu auffordert, einige Textfelder auszufüllen und andere unbearbeitet zu lassen
