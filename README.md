@@ -17,6 +17,7 @@ Als Entwicklungsumgebung wird NetBeans empfohlen
 - Bessere E-Mail bei Fehlern, die den Nutzer dazu auffordert, einige Textfelder auszufüllen und andere unbearbeitet zu lassen
 - Multi-Select, um mehrere Plätze gleichzeitig zu sperren
 - Bugfix: ButtonImages werden in "Sitzplan bearbeiten" manchmal nicht angezeigt
+- Bugfix: Wenn Eingang gelöscht wird im Saalplan-Editor, überprüfen ob ein anderer Eingang auf diesen verweist
 
 
 # Schritte, um ein Update auf den KjG Theater Webserver zu spielen
