@@ -16,6 +16,7 @@ Als Entwicklungsumgebung wird NetBeans empfohlen
 - Zurück-Button auf Vorgangs-Seite
 - Bessere E-Mail bei Fehlern, die den Nutzer dazu auffordert, einige Textfelder auszufüllen und andere unbearbeitet zu lassen
 - Multi-Select, um mehrere Plätze gleichzeitig zu sperren
+- Bugfix: ButtonImages werden in "Sitzplan bearbeiten" manchmal nicht angezeigt
 
 
 # Schritte, um ein Update auf den KjG Theater Webserver zu spielen
